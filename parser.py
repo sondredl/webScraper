@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import subprocess
 import os
 from bs4 import BeautifulSoup
 import sqlite3
@@ -44,3 +45,5 @@ for filename in os.listdir(folder_path):
 # Step 7: Commit changes and close the connection
 conn.commit()
 conn.close()
+
+subprocess.run(["rm -rf", "htmlFiles"])
