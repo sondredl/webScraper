@@ -15,14 +15,17 @@ def createContentFiles(listOfUrls):
     subprocess.run(["mkdir", "htmlFiles"])
     iterator = 1
     for i in listOfUrls:
-        createFileToParse(i, iterator)
+        createFileToParse(i[2], iterator)
         iterator += 1
 
-url_array.append("https://www.nrk.no/")
-url_array.append("https://www.dn.no/")
-url_array.append("https://www.e24.no/")
+nrk = ["", "nrk",   "https://www.nrk.no/"]
+dn  = ["", "dn",    "https://www.dn.no/"]
+e24 = ["", "e24",   "https://www.e24.no/"]
+url_array.append(nrk)
+url_array.append(dn)
+url_array.append(e24)
 
-# createContentFiles(url_array)
+
 def main():
     while True:
         createContentFiles(url_array)
