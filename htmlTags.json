@@ -9,5 +9,11 @@
     "div",
     "a",
     "span",
-    "href"
+    "href",
+    "dl",
+    "em",
+    "dt",
+    "footer",
+    "header",
+    "hgroup"
 ]
