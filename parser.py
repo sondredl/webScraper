@@ -3,14 +3,21 @@
 import os
 from bs4 import BeautifulSoup
 import sqlite3
+from datetime import datetime
 
 # Step 1: Connect to SQLite database
 conn = sqlite3.connect('your_database.db')
 cursor = conn.cursor()
 
 # Adjust the table structure based on your needs
+# cursor.execute('''CREATE TABLE IF NOT EXISTS Sentences
+                #  (id INTEGER PRIMARY KEY AUTOINCREMENT, sentence TEXT)''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS Sentences
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, sentence TEXT)''')
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filename TEXT,
+                tag_name TEXT,
+                sentence TEXT,
+                timestamp TEXT)''')
 
 # Step 2: Specify the folder containing HTML files
 folder_path = "htmlFiles/"
@@ -30,8 +37,9 @@ for filename in os.listdir(folder_path):
             for tag in soup.find_all(tag_name):
                 content = tag.text
                 if any(word in content for word in selected_words):
-                    # Step 6: Store in SQLite Database
-                    cursor.execute("INSERT INTO Sentences (sentence) VALUES (?)", (content,))
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, timestamp) VALUES (?, ?, ?, ?)",
+                                   (filename, tag_name, content, timestamp))
 
 # Step 7: Commit changes and close the connection
 conn.commit()
