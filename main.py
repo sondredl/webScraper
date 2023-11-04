@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import jsonParser
 
 import subprocess
 import time
@@ -32,6 +33,7 @@ def main():
     # while True:
         createContentFiles(url_array)
         # time.sleep(300)
+        jsonParser.webPages()
 
 if __name__ == "__main__":
     main()

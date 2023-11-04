@@ -25,6 +25,6 @@ def searchWords():
     for word in word_list:
         print(word)
 
-webPages()
-htmlTags()
-searchWords()
+# webPages()
+# htmlTags()
+# searchWords()
