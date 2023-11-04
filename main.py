@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import subprocess
+import time
 
 url_array = []
 
@@ -21,4 +22,11 @@ url_array.append("https://www.nrk.no/")
 url_array.append("https://www.dn.no/")
 url_array.append("https://www.e24.no/")
 
-createContentFiles(url_array)
+# createContentFiles(url_array)
+def main():
+    while True:
+        createContentFiles(url_array)
+        time.sleep(300)
+
+if __name__ == "__main__":
+    main()
