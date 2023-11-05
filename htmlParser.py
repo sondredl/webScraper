@@ -31,7 +31,6 @@ def updateDatabase():
 
     for filename in os.listdir(folder_path):
         if filename.endswith('.html'):
-            # print(os.path.splitext(filename)[0])
             file_path = os.path.join(folder_path, filename)
 
             with open(file_path, 'r', encoding='utf-8') as file:
@@ -41,7 +40,6 @@ def updateDatabase():
                 for tag in soup.find_all(tag_name):
                     content = tag.text
                     if any(word in content for word in selected_words):
-                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                         link_tag = tag.find_parent('a')
                         if link_tag:
@@ -49,8 +47,6 @@ def updateDatabase():
                             dot_index = filename.find(".")
                             pageName = filename[:dot_index]
                             if not href_link.startswith("https"):
-                                # print(pageName)
-                                # print(href_link)
                                 href_link = getUrl(pageName, link_tag.get('href'))
 
                         if (href_link == previousHrefLink):
@@ -58,6 +54,7 @@ def updateDatabase():
                         else:
                             previousHrefLink = href_link
                         
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         
 
                         if not (content == previousInsertion) and href_link != "":
@@ -70,10 +67,7 @@ def updateDatabase():
 
 
 def createNewColumn(cursor, table_name, column_name):
-    # table_name = 'Sentences'
-    # new_column_name = 'new_column'
     if not doesColumnExist(cursor, table_name, column_name):
-        # Step 3: If the column doesn't exist, add it
         cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} TEXT")
         print(f"The column {column_name} has been added.")
         return
@@ -83,7 +77,6 @@ def doesColumnExist(cursor, table_name, column_name):
     cursor.execute(f"PRAGMA table_info({table_name})")
     
     columns = cursor.fetchall()
-    # print(column_name, " in ", table_name, "DOES NOT EXIST")
     
     return any(column[1] == column_name for column in columns)
 
@@ -104,8 +97,6 @@ def fixHrfLinks():
                 # if page[0] == os.path.splitext(filename)[0]:
                 href_link = page[1] + row[4]
                 cursor.execute("INSERT INTO Sentences ( href) VALUES ( ?)", (href_link))
-                # print(href_link)
-                # print(row[4])
 
     conn.commit()
     conn.close()
@@ -121,5 +112,4 @@ def getUrl(pageName, href):
     else:
         return
 
-# fixHrfLinks()
 updateDatabase()
