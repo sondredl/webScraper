@@ -21,6 +21,7 @@ def updateDatabase():
     folder_path = "htmlFiles/"
 
     selected_words = jsonParser.searchWords()
+    html_tags = jsonParser.htmlTags()
 
     for word in selected_words:
         print(word)
@@ -29,26 +30,19 @@ def updateDatabase():
         if filename.endswith('.html'):
             file_path = os.path.join(folder_path, filename)
 
-            # Step 4: Parse HTML file
             with open(file_path, 'r', encoding='utf-8') as file:
                 soup = BeautifulSoup(file, 'html.parser')
 
-            # selected_words = ['Kvartal','kvartal','konflikt', 'krig', 'topp', 'seafood', 'euronext', 'performers']
-
-            for tag_name in ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            # for tag_name in ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            for tag_name in html_tags:
                 for tag in soup.find_all(tag_name):
                     content = tag.text
                     if any(word in content for word in selected_words):
-                        # print(word)
-                        # print(content)
-                        # print(filename)
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, timestamp) VALUES (?, ?, ?, ?)",
                                     (filename, tag_name, content, timestamp))
 
     conn.commit()
     conn.close()
-
-# subprocess.run(["rm -rf", "htmlFiles"])
 
 updateDatabase()

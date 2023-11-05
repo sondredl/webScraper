@@ -14,9 +14,13 @@ def htmlTags():
     with open(json_file_path, 'r') as json_file:
         htmlTags = json.load(json_file)
 
+    tag_array = []
+
     for tag in htmlTags:
+        tag_array.append(tag)
         # print(tag)
-        return tag
+    return tag_array
+    
 
 def searchWords():
     json_file_path = 'searchWords.json'  
@@ -24,6 +28,7 @@ def searchWords():
         word_list = json.load(json_file)
 
     word_array = []
+
     for word in word_list:
         # print(word)
         word_array.append(word)
