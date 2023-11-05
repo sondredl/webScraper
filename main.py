@@ -49,7 +49,6 @@ url_array.append(aftenposten)
 
 def main():
     createContentFiles(url_array)
-    # time.sleep(300)
     # jsonParser.webPages()
     htmlParser.updateDatabase()
 
