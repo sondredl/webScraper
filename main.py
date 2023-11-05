@@ -19,17 +19,12 @@ def createContentFiles():
 
 
 def main():
-<<<<<<< Updated upstream
-    createContentFiles()
-    htmlParser.updateDatabase()
-=======
     while True:
         createContentFiles()
         htmlParser.updateDatabase()
         # subprocess.run(["rm", "-rf", "htmlFiles/"])
         time.sleep(300)
 
->>>>>>> Stashed changes
 
 if __name__ == "__main__":
     main()
