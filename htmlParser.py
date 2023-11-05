@@ -23,11 +23,13 @@ def updateDatabase():
 
     selected_words = jsonParser.searchWords()
     html_tags = jsonParser.htmlTags()
+    web_pages = jsonParser.webPages()
     previousInsertion = ""
     previousHrefLink = ""
 
     for filename in os.listdir(folder_path):
         if filename.endswith('.html'):
+            # print(os.path.splitext(filename)[0])
             file_path = os.path.join(folder_path, filename)
 
             with open(file_path, 'r', encoding='utf-8') as file:
@@ -42,12 +44,18 @@ def updateDatabase():
                         link_tag = tag.find_parent('a')
                         if link_tag:
                             href_link = link_tag.get('href')
+
                         if (href_link == previousHrefLink):
                             href_link = "" 
                         else:
                             previousHrefLink = href_link
+                        # if not href_link == "" and not href_link.startswith("https://"):
+                        #     for page in web_pages:
+                        #         if page[0] == os.path.splitext(filename)[0]:
+                        #             href_link = page[0] + href_link
 
-                        if not (content == previousInsertion):
+
+                        if not (content == previousInsertion) and href_link != "":
                             cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)", 
                                                                     (filename, tag_name, content, href_link, timestamp))
                             previousInsertion = content
