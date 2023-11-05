@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# import pdb; pdb.set_trace()
 
 import jsonParser
 import subprocess
@@ -14,6 +15,7 @@ def updateDatabase():
     cursor.execute('''CREATE TABLE IF NOT EXISTS Sentences
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
                     filename TEXT,
+                    pagename TEXT,
                     tag_name TEXT,
                     sentence TEXT,
                     href TEXT,
@@ -44,27 +46,28 @@ def updateDatabase():
                         link_tag = tag.find_parent('a')
                         if link_tag:
                             href_link = link_tag.get('href')
+                            dot_index = filename.find(".")
+                            pageName = filename[:dot_index]
+                            if not href_link.startswith("https"):
+                                # print(pageName)
+                                # print(href_link)
+                                href_link = getUrl(pageName, link_tag.get('href'))
 
                         if (href_link == previousHrefLink):
                             href_link = "" 
                         else:
                             previousHrefLink = href_link
-                        # if not href_link == "" and not href_link.startswith("https://"):
-                        #     for page in web_pages:
-                        #         if page[0] == os.path.splitext(filename)[0]:
-                        #             href_link = page[0] + href_link
-
+                        
+                        
 
                         if not (content == previousInsertion) and href_link != "":
                             cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)", 
                                                                     (filename, tag_name, content, href_link, timestamp))
                             previousInsertion = content
 
-                            
-
-
     conn.commit()
     conn.close()
+
 
 def createNewColumn(cursor, table_name, column_name):
     # table_name = 'Sentences'
@@ -84,4 +87,39 @@ def doesColumnExist(cursor, table_name, column_name):
     
     return any(column[1] == column_name for column in columns)
 
+def fixHrfLinks():
+    conn = sqlite3.connect('your_database.db')
+    cursor = conn.cursor()
+
+    tableName = 'Sentences'
+    cursor.execute(f"select * from {tableName}")
+    rows = cursor.fetchall()
+
+    web_pages = jsonParser.webPages()
+
+    for row in rows:
+        # if not href_link == "" and not href_link.startswith("https://"):
+        if not row[4].startswith("https"):
+            for page in web_pages:
+                # if page[0] == os.path.splitext(filename)[0]:
+                href_link = page[1] + row[4]
+                cursor.execute("INSERT INTO Sentences ( href) VALUES ( ?)", (href_link))
+                # print(href_link)
+                # print(row[4])
+
+    conn.commit()
+    conn.close()
+
+def getUrl(pageName, href):
+    web_pages = jsonParser.webPages()
+
+    if not href.startswith("https"):
+        for page in web_pages:
+            if (pageName == page[0]):
+                href_link = page[1] + href
+                return href_link
+    else:
+        return
+
+# fixHrfLinks()
 updateDatabase()
