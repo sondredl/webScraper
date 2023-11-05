@@ -9,7 +9,7 @@ def createFileToParse(name, url):
     filename = name + ".html"
     path = "htmlFiles/" 
     path += filename
-    subprocess.run(["curl", "-o", path, url])
+    subprocess.run(["curl", "-L", "-o", path, url])
 
 def createContentFiles():
     subprocess.run(["mkdir", "htmlFiles"])
