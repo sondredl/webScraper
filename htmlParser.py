@@ -16,12 +16,15 @@ def updateDatabase():
                     filename TEXT,
                     tag_name TEXT,
                     sentence TEXT,
+                    href TEXT,
                     timestamp TEXT)''')
 
     folder_path = "htmlFiles/"
 
     selected_words = jsonParser.searchWords()
     html_tags = jsonParser.htmlTags()
+    previousInsertion = ""
+    previousHrefLink = ""
 
     for filename in os.listdir(folder_path):
         if filename.endswith('.html'):
@@ -39,8 +42,16 @@ def updateDatabase():
                         link_tag = tag.find_parent('a')
                         if link_tag:
                             href_link = link_tag.get('href')
-                        cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)",
-                                    (filename, tag_name, content, href_link, timestamp))
+                        if (href_link == previousHrefLink):
+                            href_link = "" 
+                        else:
+                            previousHrefLink = href_link
+
+                        if not (content == previousInsertion):
+                            cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)", 
+                                                                    (filename, tag_name, content, href_link, timestamp))
+                            previousInsertion = content
+
                             
 
 
