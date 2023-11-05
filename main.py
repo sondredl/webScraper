@@ -5,8 +5,6 @@ import htmlParser
 import subprocess
 import time
 
-# url_array = []
-
 def createFileToParse(name, url):
     filename = name + ".html"
     path = "htmlFiles/" 
