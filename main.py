@@ -19,8 +19,12 @@ def createContentFiles():
 
 
 def main():
-    createContentFiles()
-    htmlParser.updateDatabase()
+    while True:
+        createContentFiles()
+        htmlParser.updateDatabase()
+        subprocess.run(["rm", "-rf", "htmlFiles/"])
+        time.sleep(300)
+
 
 if __name__ == "__main__":
     main()
