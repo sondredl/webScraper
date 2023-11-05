@@ -6,8 +6,11 @@ def webPages():
     with open(json_file_path, 'r') as json_file:
         web_pages = json.load(json_file)
 
+    webPage_array = []
     for page in web_pages:
-        print(page)
+        pageData = [page["name"], page["url"]]
+        webPage_array.append(pageData)
+    return webPage_array
 
 def htmlTags():
     json_file_path = 'htmlTags.json'  
@@ -18,7 +21,6 @@ def htmlTags():
 
     for tag in htmlTags:
         tag_array.append(tag)
-        # print(tag)
     return tag_array
     
 
@@ -30,11 +32,5 @@ def searchWords():
     word_array = []
 
     for word in word_list:
-        # print(word)
         word_array.append(word)
-        # return word
     return word_array
-
-# webPages()
-# htmlTags()
-# searchWords()

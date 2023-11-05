@@ -1,10 +1,26 @@
 [
-    "https://www.dn.no/", 
-    "https://www.nrk.no/",
-    "https://www.e24.no/",
-    "https://www.finansavisen.no",
-    "https://www.dn.no/",
-    "https://www.dn.no/investor/",
-    "https://www.aftenposten.no/okonomi"
-    
+    {
+        "name": "dn",
+        "url": "https://www.dn.no/" 
+    },
+    {
+        "name": "nrk",
+        "url": "https://www.nrk.no/"
+    },
+    {
+        "name": "e24",
+        "url": "https://www.e24.no/"
+    },
+    {
+        "name": "finansavisen",
+        "url": "https://www.finansavisen.no"
+    },
+    {
+        "name": "dnInvestor",
+        "url": "https://www.dn.no/investor/"
+    },
+    {
+        "name": "aftenpostenOkonomi",
+        "url": "https://www.aftenposten.no/okonomi"
+    }
 ]

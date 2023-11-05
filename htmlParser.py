@@ -23,9 +23,6 @@ def updateDatabase():
     selected_words = jsonParser.searchWords()
     html_tags = jsonParser.htmlTags()
 
-    for word in selected_words:
-        print(word)
-
     for filename in os.listdir(folder_path):
         if filename.endswith('.html'):
             file_path = os.path.join(folder_path, filename)
@@ -33,7 +30,6 @@ def updateDatabase():
             with open(file_path, 'r', encoding='utf-8') as file:
                 soup = BeautifulSoup(file, 'html.parser')
 
-            # for tag_name in ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             for tag_name in html_tags:
                 for tag in soup.find_all(tag_name):
                     content = tag.text
@@ -44,5 +40,3 @@ def updateDatabase():
 
     conn.commit()
     conn.close()
-
-updateDatabase()
