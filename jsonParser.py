@@ -15,15 +15,20 @@ def htmlTags():
         htmlTags = json.load(json_file)
 
     for tag in htmlTags:
-        print(tag)
+        # print(tag)
+        return tag
 
 def searchWords():
     json_file_path = 'searchWords.json'  
     with open(json_file_path, 'r') as json_file:
         word_list = json.load(json_file)
 
+    word_array = []
     for word in word_list:
-        print(word)
+        # print(word)
+        word_array.append(word)
+        # return word
+    return word_array
 
 # webPages()
 # htmlTags()
