@@ -18,14 +18,10 @@ def createContentFiles():
     for page in pageList:
         createFileToParse(page[0], page[1])
 
-
 def main():
-    # while True:
-        createContentFiles()
-        htmlParser.updateDatabase()
-        htmlParser.getWordAndUrl()
-        # subprocess.run(["rm", "-rf", "htmlFiles/"])
-        # time.sleep(300)
+    createContentFiles()
+    htmlParser.updateDatabase()
+    htmlParser.getWordAndUrl()
 
 
 if __name__ == "__main__":
