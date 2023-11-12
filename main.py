@@ -23,7 +23,7 @@ def main():
     while True:
         createContentFiles()
         htmlParser.updateDatabase()
-        htmlParser.WordAndUrl()
+        htmlParser.getWordAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
         time.sleep(300)
 
