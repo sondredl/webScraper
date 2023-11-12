@@ -20,7 +20,47 @@
         "url": "https://www.dn.no/investor"
     },
     {
+        "name": "nordnettBlogg",
+        "url": "https://www.nordnet.no/blogg/"
+    },
+    {
         "name": "aftenpostenOkonomi",
         "url": "https://www.aftenposten.no/okonomi"
+    },
+    {
+        "name": "dinePenger",
+        "url": "https://www.vg.no/dinepenger"
+    },
+    {
+        "name": "formueBygging",
+        "url": "https://www.formuebygging.com/"
+    },
+    {
+        "name": "aksjebloggen",
+        "url": "https://aksjebloggen.com/"
+    },
+    {
+        "name": "finansnerden",
+        "url": "https://www.finansnerden.no/"
+    },
+    {
+        "name":"EivindBerg",
+        "url":"https://www.eivindberg.no/"
+    },
+    {
+        "name":"jansBlogg-Eika",
+        "url":"https://jansblogg.eika.no/category/aksjer/"
+    },
+    {
+        "name":"bors365",
+        "url":"https://www.bors365.no/"
+    },
+    {
+        "name":"borsenDagbladet",
+        "url":"https://borsen.dagbladet.no/"
+    },
+    {
+        "name":"osloBorsNews",
+        "url":"https://newsweb.oslobors.no/"
     }
 ]

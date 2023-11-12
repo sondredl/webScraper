@@ -34,3 +34,14 @@ def searchWords():
     for word in word_list:
         word_array.append(word)
     return word_array
+
+def companyNames():
+    json_file_path = 'companies.json'  
+    with open(json_file_path, 'r') as json_file:
+        word_list = json.load(json_file)
+
+    word_array = []
+
+    for word in word_list:
+        word_array.append(word)
+    return word_array

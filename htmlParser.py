@@ -42,6 +42,39 @@ def getWordAndUrl():
     conn.commit()
     conn.close()
 
+def getWordAndUrl():
+    conn = sqlite3.connect('your_database.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS WordAndUrl
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    pagename TEXT,
+                    tag_name TEXT,
+                    search_word,
+                    href TEXT,
+                    timestamp TEXT)''')
+
+    folder_path = "htmlFiles/"
+
+    with open('companies.json') as json_file:
+        search_words = json.load(json_file)
+
+    for search_word in search_words:
+        # Query the Sentences table for matching rows
+        cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
+                        FROM Sentences
+                        WHERE sentence LIKE ?''', ('%' + search_word + '%',))
+
+        matching_rows = cursor.fetchall()
+
+        for row in matching_rows:
+            pagename, tag_name, sentence, href, timestamp = row
+            cursor.execute('''INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                            VALUES (?, ?, ?, ?, ?)''', (pagename, tag_name, search_word, href, timestamp))
+    
+    conn.commit()
+    conn.close()
+
 
 def updateDatabase():
     conn = sqlite3.connect('your_database.db')
@@ -126,6 +159,7 @@ def fixHrfLinks():
     rows = cursor.fetchall()
 
     web_pages = jsonParser.webPages()
+    web_pages += jsonParser.companyNames()
 
     for row in rows:
         # if not href_link == "" and not href_link.startswith("https://"):
