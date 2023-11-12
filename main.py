@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import jsonParser
 import htmlParser
 
@@ -22,6 +23,7 @@ def main():
     # while True:
         createContentFiles()
         htmlParser.updateDatabase()
+        htmlParser.WordAndUrl()
         # subprocess.run(["rm", "-rf", "htmlFiles/"])
         # time.sleep(300)
 

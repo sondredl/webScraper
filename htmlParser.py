@@ -2,11 +2,46 @@
 # import pdb; pdb.set_trace()
 
 import jsonParser
+import json
 import subprocess
 import os
 from bs4 import BeautifulSoup
 import sqlite3
 from datetime import datetime
+
+def getWordAndUrl():
+    conn = sqlite3.connect('your_database.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS WordAndUrl
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    pagename TEXT,
+                    tag_name TEXT,
+                    search_word,
+                    href TEXT,
+                    timestamp TEXT)''')
+
+    folder_path = "htmlFiles/"
+
+    with open('searchWords.json') as json_file:
+        search_words = json.load(json_file)
+
+    for search_word in search_words:
+        # Query the Sentences table for matching rows
+        cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
+                        FROM Sentences
+                        WHERE sentence LIKE ?''', ('%' + search_word + '%',))
+
+        matching_rows = cursor.fetchall()
+
+        for row in matching_rows:
+            pagename, tag_name, sentence, href, timestamp = row
+            cursor.execute('''INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                            VALUES (?, ?, ?, ?, ?)''', (pagename, tag_name, search_word, href, timestamp))
+    
+    conn.commit()
+    conn.close()
+
 
 def updateDatabase():
     conn = sqlite3.connect('your_database.db')
@@ -58,6 +93,8 @@ def updateDatabase():
                         
 
                         if not (content == previousInsertion) and href_link != "":
+                            # cursor.execute("INSERT INTO Sentences (filename, tag_name, searchWord, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?, ?)", 
+                            #                                         (filename, tag_name, word, content, href_link, timestamp))
                             cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)", 
                                                                     (filename, tag_name, content, href_link, timestamp))
                             previousInsertion = content
@@ -112,4 +149,6 @@ def getUrl(pageName, href):
     else:
         return
 
-updateDatabase()
+
+# updateDatabase()
+# getWordAndUrl()
