@@ -1,3 +1,6 @@
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/sondredl/react-demo.git
+[submodule "inputData"]
+	path = inputData
+	url = https://github.com/sondredl/inputData.git
