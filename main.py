@@ -23,6 +23,7 @@ def createContentFiles():
 database_path = 'your_database.db'
 table_name = 'WordAndUrl'
 column_name = 'href'
+date_column = 'timestamp'  # Replace with the actual date column name
 
 def main():
     while True:
@@ -30,7 +31,7 @@ def main():
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
-        dbCleaner.remove_duplicates(database_path, table_name, column_name)
+        dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
         print("sleep for 3 hours")
         time.sleep(3600) # 3 hours sleep
 

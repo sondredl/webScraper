@@ -25,12 +25,14 @@ def createContentFiles():
 database_path = 'your_database.db'
 table_name = 'WordAndUrl'
 column_name = 'href'
+date_column = 'timestamp'  # Replace with the actual date column name
 
 def main():
     createContentFiles()
     htmlParser.updateDatabase()
     htmlParser.getWordAndUrl()
-    dbCleaner.remove_duplicates(database_path, table_name, column_name)
+    # dbCleaner.remove_duplicates(database_path, table_name, column_name)
+    dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
 
 
 if __name__ == "__main__":
