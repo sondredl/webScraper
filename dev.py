@@ -19,20 +19,19 @@ def createContentFiles():
         createFileToParse(page[0], page[1])
 
 
-# Call the function to remove duplicates
-
-# Replace 'your_database.db' with the actual path to your SQLite database file
 database_path = 'your_database.db'
 table_name = 'WordAndUrl'
 column_name = 'href'
-date_column = 'timestamp'  # Replace with the actual date column name
+date_column = 'timestamp'  
 
 def main():
     createContentFiles()
     htmlParser.updateDatabase()
     htmlParser.getWordAndUrl()
-    # dbCleaner.remove_duplicates(database_path, table_name, column_name)
+    dbCleaner.clean_last_update()
     dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+    dbCleaner.reorganize_ids(database_path)
+    dbCleaner.clean_last_update()
 
 
 if __name__ == "__main__":
