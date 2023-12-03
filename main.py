@@ -28,21 +28,20 @@ date_column = 'timestamp'  # Replace with the actual date column name
 
 def main():
     while True:
-        subprocess.run(["rm", "-rf", "htmlFiles/"])
         createContentFiles()
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
         htmlParser.getCompanyAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
-        # dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
-        # dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+
         cleanDuplicates = multiprocessing.Process(target= dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column))
         cleanDuplicates.start()
         cleanDuplicates.join()
+        print("done cleaning duplicates")
         dbCleaner.reorganize_ids(database_path)
-        # dbCleaner.clean_last_update()
-        print("sleep for 3 hours")
-        time.sleep(3600) # 3 hours sleep
+
+        print("sleep for 5000 seconds")
+        time.sleep(5000) 
 
 
 if __name__ == "__main__":

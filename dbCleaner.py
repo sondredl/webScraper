@@ -1,78 +1,30 @@
 import sqlite3
 from datetime import datetime
-# import sqlite3
-
-# def remove_duplicates_after_id(database_path, table_name, column_name, date_column, last_entry_id):
-# def remove_duplicates_on_date(database_path, table_name, column_name, date_column):
-#     # Connect to the SQLite database
-#     last_entry_id = get_highest_id(database_path)
-#     connection = sqlite3.connect(database_path)
-#     cursor = connection.cursor()
-
-#     try:
-#         # Select and print information about each duplicated row after last_entry_id before removal
-#         cursor.execute(f"SELECT {column_name}, date({date_column}), COUNT(*) FROM {table_name} WHERE id > ? GROUP BY {column_name}, date({date_column}) HAVING COUNT(*) > 1", (last_entry_id,))
-#         duplicates = cursor.fetchall()
-
-#         for duplicate in duplicates:
-#             href_value, date_value, count = duplicate
-#             print(f"Removing duplicates for {column_name}: {href_value} on {date_value}, {count} rows removed.")
-
-#         # Create a temporary table with distinct values based on the href column and date
-#         cursor.execute(f"CREATE TABLE temp_table AS SELECT * FROM {table_name} WHERE id <= ? GROUP BY {column_name}, date({date_column})", (last_entry_id,))
-
-#         # Drop the original table
-#         cursor.execute(f"DROP TABLE {table_name}")
-
-#         # Rename the temporary table to the original table name
-#         cursor.execute(f"ALTER TABLE temp_table RENAME TO {table_name}")
-
-#         # Commit the changes
-#         connection.commit()
-
-#         print(f"Duplicates removed successfully from {column_name} column in {table_name} table after id {last_entry_id}.")
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         connection.rollback()
-#     finally:
-#         # Close the connection
-#         connection.close()
-
 
 def remove_duplicates_on_date(database_path, table_name, column_name, date_column):
-    # Connect to the SQLite database
+    last_entry_id = get_highest_id(database_path)
     connection = sqlite3.connect(database_path)
     cursor = connection.cursor()
 
     try:
-        # Select and print information about each duplicated row before removal
-        cursor.execute(f"SELECT {column_name}, date({date_column}), COUNT(*) FROM {table_name} GROUP BY {column_name}, date({date_column}) HAVING COUNT(*) > 1")
+        cursor.execute(f"SELECT {column_name}, date({date_column}), COUNT(*) FROM {table_name} WHERE id > ? GROUP BY {column_name}, date({date_column}) HAVING COUNT(*) > 1", (last_entry_id,))
         duplicates = cursor.fetchall()
 
         for duplicate in duplicates:
             href_value, date_value, count = duplicate
             print(f"Removing duplicates for {column_name}: {href_value} on {date_value}, {count} rows removed.")
 
-        # Create a temporary table with distinct values based on the href column and date
-        cursor.execute(f"CREATE TABLE temp_table AS SELECT * FROM {table_name} GROUP BY {column_name}, date({date_column})")
-
-        # Drop the original table
+        cursor.execute(f"CREATE TABLE temp_table AS SELECT * FROM {table_name} WHERE id <= ? GROUP BY {column_name}, date({date_column})", (last_entry_id,))
         cursor.execute(f"DROP TABLE {table_name}")
-
-        # Rename the temporary table to the original table name
         cursor.execute(f"ALTER TABLE temp_table RENAME TO {table_name}")
-
-        # Commit the changes
         connection.commit()
 
-        print(f"Duplicates removed successfully from {column_name} column in {table_name} table on the same date.")
+        print(f"Duplicates removed successfully from {column_name} column in {table_name} table after id {last_entry_id}.")
     except Exception as e:
         print(f"Error: {e}")
         connection.rollback()
     finally:
-        # Close the connection
         connection.close()
-
 
 def create_last_checked_table(connection):
     cursor = connection.cursor()
@@ -108,11 +60,9 @@ def get_highest_id(database_path, table_name='WordAndUrl'):
     cursor = connection.cursor()
 
     try:
-        # Execute a query to get the highest value in the id column
         cursor.execute(f"SELECT MAX(id) FROM {table_name}")
         result = cursor.fetchone()
 
-        # If there are records in the table, return the highest id; otherwise, return None
         return result[0] if result[0] is not None else None
 
     except sqlite3.Error as e:
@@ -129,20 +79,13 @@ def clean_last_update():
 
     connection = sqlite3.connect(database_path)
 
-    # Create the LastCheckedEntry table if it doesn't exist
     create_last_checked_table(connection)
-
-    # Insert an initial record for WordAndUrl
     insert_initial_record(connection, table_name)
 
-    # Simulate checking for duplicates in WordAndUrl
-    # Replace this with your actual logic to check for duplicates
     last_entry_id_checked = get_highest_id(database_path)
 
-    # Update the LastCheckedEntry record after checking for duplicates
     update_last_checked_record(connection, table_name, last_entry_id_checked)
 
-    # Close the connection
     connection.close()
 
     if last_entry_id_checked is not None:
@@ -150,36 +93,26 @@ def clean_last_update():
     else:
         print("Failed to retrieve the highest id.")
 
-# import sqlite3
-
 def reorganize_ids(database_path, table_name='WordAndUrl'):
-    # Replace 'your_database.db' with the actual path to your SQLite database file
     database_path = 'your_database.db'
     connection = sqlite3.connect(database_path)
     cursor = connection.cursor()
 
     try:
-        # Create a temporary table with the desired order
         cursor.execute(f'''
             CREATE TABLE IF NOT EXISTS temp_table AS
             SELECT *, ROW_NUMBER() OVER (ORDER BY id) AS new_id
             FROM {table_name}
         ''')
 
-        # Clear the original table
         cursor.execute(f'DELETE FROM {table_name}')
-
-        # Update the original table with the new order
         cursor.execute(f'''
             INSERT INTO {table_name} (id, pagename, tag_name, search_word, href, timestamp)
             SELECT new_id, pagename, tag_name, search_word, href, timestamp
             FROM temp_table
         ''')
 
-        # Drop the temporary table
         cursor.execute('DROP TABLE temp_table')
-
-        # Commit the changes
         connection.commit()
 
         print(f"IDs in {table_name} table have been reorganized.")
@@ -191,6 +124,3 @@ def reorganize_ids(database_path, table_name='WordAndUrl'):
     finally:
         connection.close()
 
-
-# Call the function to reorganize the IDs in the WordAndUrl table
-# reorganize_ids(database_path)

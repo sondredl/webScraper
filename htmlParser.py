@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# import pdb; pdb.set_trace()
 
 import jsonParser
 import json
@@ -21,15 +20,10 @@ def getWordAndUrl():
                     href TEXT,
                     timestamp TEXT)''')
 
-    folder_path = "htmlFiles/"
-
     with open('inputData/searchWords.json') as json_file:
         search_words = json.load(json_file)
-        # print(search_words)
 
     for search_word in search_words:
-        # Query the Sentences table for matching rows
-        # print(search_word)
         cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
                         FROM Sentences
                         WHERE sentence LIKE ?''', ('%' + search_word + '%',))
@@ -56,15 +50,10 @@ def getCompanyAndUrl():
                     href TEXT,
                     timestamp TEXT)''')
 
-    folder_path = "htmlFiles/"
-
     with open('inputData/companies.json') as json_file:
         search_words = json.load(json_file)
-        # print(search_words)
 
     for search_word in search_words:
-        # Query the Sentences table for matching rows
-        # print(search_word)
         cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
                         FROM Sentences
                         WHERE sentence LIKE ?''', ('%' + search_word + '%',))
@@ -97,7 +86,6 @@ def updateDatabase():
 
     selected_words = jsonParser.searchWords()
     html_tags = jsonParser.htmlTags()
-    web_pages = jsonParser.webPages()
     previousInsertion = ""
     previousHrefLink = ""
 
@@ -130,8 +118,6 @@ def updateDatabase():
                         
 
                         if not (content == previousInsertion) and href_link != "":
-                            # cursor.execute("INSERT INTO Sentences (filename, tag_name, searchWord, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?, ?)", 
-                            #                                         (filename, tag_name, word, content, href_link, timestamp))
                             cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)", 
                                                                     (filename, tag_name, content, href_link, timestamp))
                             previousInsertion = content
@@ -166,10 +152,8 @@ def fixHrfLinks():
     web_pages += jsonParser.companyNames()
 
     for row in rows:
-        # if not href_link == "" and not href_link.startswith("https://"):
         if not row[4].startswith("https"):
             for page in web_pages:
-                # if page[0] == os.path.splitext(filename)[0]:
                 href_link = page[1] + row[4]
                 cursor.execute("INSERT INTO Sentences ( href) VALUES ( ?)", (href_link))
 
@@ -187,6 +171,3 @@ def getUrl(pageName, href):
     else:
         return
 
-
-# updateDatabase()
-# getWordAndUrl()
