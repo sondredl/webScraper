@@ -25,7 +25,7 @@ def main():
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
-        time.sleep(1200)
+        time.sleep(3600) # 3 hours sleep
 
 
 if __name__ == "__main__":
