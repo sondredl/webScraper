@@ -24,7 +24,7 @@ def createContentFiles():
 database_path = 'your_database.db'
 table_name = 'WordAndUrl'
 column_name = 'href'
-date_column = 'timestamp'  # Replace with the actual date column name
+date_column = 'timestamp'  
 
 def main():
     while True:
