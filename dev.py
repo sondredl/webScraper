@@ -30,6 +30,7 @@ def main():
     htmlParser.updateDatabase()
     htmlParser.getWordAndUrl()
     htmlParser.getCompanyAndUrl()
+
     cleanDuplicates = multiprocessing.Process(target= dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column))
     cleanDuplicates.start()
     cleanDuplicates.join()
