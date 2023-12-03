@@ -23,11 +23,13 @@ def getWordAndUrl():
 
     folder_path = "htmlFiles/"
 
-    with open('searchWords.json') as json_file:
+    with open('inputData/searchWords.json') as json_file:
         search_words = json.load(json_file)
+        # print(search_words)
 
     for search_word in search_words:
         # Query the Sentences table for matching rows
+        # print(search_word)
         cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
                         FROM Sentences
                         WHERE sentence LIKE ?''', ('%' + search_word + '%',))
@@ -35,14 +37,14 @@ def getWordAndUrl():
         matching_rows = cursor.fetchall()
 
         for row in matching_rows:
-            pagename, tag_name, sentence, href, timestamp = row
+            pagename, tag_name, search_word, href, timestamp = row
             cursor.execute('''INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
                             VALUES (?, ?, ?, ?, ?)''', (pagename, tag_name, search_word, href, timestamp))
     
     conn.commit()
     conn.close()
 
-def getWordAndUrl():
+def getCompanyAndUrl():
     conn = sqlite3.connect('your_database.db')
     cursor = conn.cursor()
 
@@ -56,11 +58,13 @@ def getWordAndUrl():
 
     folder_path = "htmlFiles/"
 
-    with open('companies.json') as json_file:
+    with open('inputData/companies.json') as json_file:
         search_words = json.load(json_file)
+        # print(search_words)
 
     for search_word in search_words:
         # Query the Sentences table for matching rows
+        # print(search_word)
         cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
                         FROM Sentences
                         WHERE sentence LIKE ?''', ('%' + search_word + '%',))
@@ -68,7 +72,7 @@ def getWordAndUrl():
         matching_rows = cursor.fetchall()
 
         for row in matching_rows:
-            pagename, tag_name, sentence, href, timestamp = row
+            pagename, tag_name, search_word, href, timestamp = row
             cursor.execute('''INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
                             VALUES (?, ?, ?, ?, ?)''', (pagename, tag_name, search_word, href, timestamp))
     

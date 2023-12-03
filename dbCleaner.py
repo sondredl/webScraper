@@ -1,5 +1,43 @@
 import sqlite3
 from datetime import datetime
+# import sqlite3
+
+# def remove_duplicates_after_id(database_path, table_name, column_name, date_column, last_entry_id):
+# def remove_duplicates_on_date(database_path, table_name, column_name, date_column):
+#     # Connect to the SQLite database
+#     last_entry_id = get_highest_id(database_path)
+#     connection = sqlite3.connect(database_path)
+#     cursor = connection.cursor()
+
+#     try:
+#         # Select and print information about each duplicated row after last_entry_id before removal
+#         cursor.execute(f"SELECT {column_name}, date({date_column}), COUNT(*) FROM {table_name} WHERE id > ? GROUP BY {column_name}, date({date_column}) HAVING COUNT(*) > 1", (last_entry_id,))
+#         duplicates = cursor.fetchall()
+
+#         for duplicate in duplicates:
+#             href_value, date_value, count = duplicate
+#             print(f"Removing duplicates for {column_name}: {href_value} on {date_value}, {count} rows removed.")
+
+#         # Create a temporary table with distinct values based on the href column and date
+#         cursor.execute(f"CREATE TABLE temp_table AS SELECT * FROM {table_name} WHERE id <= ? GROUP BY {column_name}, date({date_column})", (last_entry_id,))
+
+#         # Drop the original table
+#         cursor.execute(f"DROP TABLE {table_name}")
+
+#         # Rename the temporary table to the original table name
+#         cursor.execute(f"ALTER TABLE temp_table RENAME TO {table_name}")
+
+#         # Commit the changes
+#         connection.commit()
+
+#         print(f"Duplicates removed successfully from {column_name} column in {table_name} table after id {last_entry_id}.")
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         connection.rollback()
+#     finally:
+#         # Close the connection
+#         connection.close()
+
 
 def remove_duplicates_on_date(database_path, table_name, column_name, date_column):
     # Connect to the SQLite database
@@ -55,15 +93,6 @@ def insert_initial_record(connection, table_name):
         VALUES (?, 0, ?)
     ''', (table_name, datetime.now()))
     connection.commit()
-
-# def update_last_checked_record(connection, table_name, last_entry_id):
-#     cursor = connection.cursor()
-#     cursor.execute('''
-#         UPDATE LastCheckedEntry
-#         SET last_entry_id = ?, last_checked_timestamp = ?
-#         WHERE table_name = ?
-#     ''', (last_entry_id, datetime.now(), table_name))
-#     connection.commit()
 
 def update_last_checked_record(connection, table_name, last_entry_id):
     cursor = connection.cursor()

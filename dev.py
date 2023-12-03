@@ -5,6 +5,7 @@ import htmlParser
 
 import subprocess
 import dbCleaner
+import multiprocessing
 
 def createFileToParse(name, url):
     filename = name + ".html"
@@ -28,10 +29,17 @@ def main():
     createContentFiles()
     htmlParser.updateDatabase()
     htmlParser.getWordAndUrl()
-    dbCleaner.clean_last_update()
-    dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+    htmlParser.getCompanyAndUrl()
+    # dbCleaner.clean_last_update()
+    cleanDuplicates = multiprocessing.Process(target= dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column))
+    cleanDuplicates.start()
+    cleanDuplicates.join()
+    print("done cleaning duplicates")
+
     dbCleaner.reorganize_ids(database_path)
-    dbCleaner.clean_last_update()
+    # dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+    # dbCleaner.reorganize_ids(database_path)
+    # dbCleaner.clean_last_update()
 
 
 if __name__ == "__main__":
