@@ -28,6 +28,7 @@ date_column = 'timestamp'  # Replace with the actual date column name
 
 def main():
     while True:
+        subprocess.run(["rm", "-rf", "htmlFiles/"])
         createContentFiles()
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
