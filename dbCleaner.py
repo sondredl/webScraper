@@ -6,6 +6,14 @@ def remove_duplicates(database_path, table_name, column_name):
     cursor = connection.cursor()
 
     try:
+        # Select and print information about each duplicated row before removal
+        cursor.execute(f"SELECT {column_name}, COUNT(*) FROM {table_name} GROUP BY {column_name} HAVING COUNT(*) > 1")
+        duplicates = cursor.fetchall()
+
+        for duplicate in duplicates:
+            href_value, count = duplicate
+            print(f"Removing duplicates for {column_name}: {href_value}, {count} rows removed.")
+
         # Create a temporary table with distinct values based on the href column
         cursor.execute(f"CREATE TABLE temp_table AS SELECT * FROM {table_name} GROUP BY {column_name}")
 
