@@ -32,6 +32,9 @@ def main():
         htmlParser.getWordAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
         dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+        dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+        dbCleaner.reorganize_ids(database_path)
+        dbCleaner.clean_last_update()
         print("sleep for 3 hours")
         time.sleep(3600) # 3 hours sleep
 
