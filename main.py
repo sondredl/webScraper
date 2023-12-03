@@ -6,6 +6,7 @@ import dbCleaner
 
 import subprocess
 import time
+import multiprocessing
 
 
 def createFileToParse(name, url):
@@ -30,11 +31,15 @@ def main():
         createContentFiles()
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
+        htmlParser.getCompanyAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
-        dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
-        dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+        # dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+        # dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column)
+        cleanDuplicates = multiprocessing.Process(target= dbCleaner.remove_duplicates_on_date(database_path, table_name, column_name, date_column))
+        cleanDuplicates.start()
+        cleanDuplicates.join()
         dbCleaner.reorganize_ids(database_path)
-        dbCleaner.clean_last_update()
+        # dbCleaner.clean_last_update()
         print("sleep for 3 hours")
         time.sleep(3600) # 3 hours sleep
 
