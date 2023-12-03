@@ -30,8 +30,8 @@ def main():
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
         subprocess.run(["rm", "-rf", "htmlFiles/"])
-        time.sleep(3600) # 3 hours sleep
         dbCleaner.remove_duplicates(database_path, table_name, column_name)
+        time.sleep(3600) # 3 hours sleep
 
 
 if __name__ == "__main__":
