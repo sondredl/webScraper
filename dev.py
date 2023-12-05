@@ -6,6 +6,30 @@ import htmlParser
 import subprocess
 import dbCleaner
 import multiprocessing
+import download_page
+
+import sqlite3
+
+def createArticlesTable():
+    # Connect to the database (this will create the database if it doesn't exist)
+    conn = sqlite3.connect('your_database.db')
+    cursor = conn.cursor()
+
+    # Create the articles table if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subtitle TEXT,
+            text TEXT NOT NULL
+        )
+    ''')
+
+    # Commit the changes and close the connection
+    conn.commit()
+    conn.close()
+
+# print("Table 'articles' created successfully.")
 
 def createFileToParse(name, url):
     filename = name + ".html"
@@ -38,6 +62,9 @@ def main():
 
     dbCleaner.reorganize_ids(database_path)
     dbCleaner.clean_last_update()
+
+    createArticlesTable()
+    download_page.download_all_article_pages()
 
 
 if __name__ == "__main__":
