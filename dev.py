@@ -11,11 +11,9 @@ import download_page
 import sqlite3
 
 def createArticlesTable():
-    # Connect to the database (this will create the database if it doesn't exist)
     conn = sqlite3.connect('your_database.db')
     cursor = conn.cursor()
 
-    # Create the articles table if it doesn't exist
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,11 +23,9 @@ def createArticlesTable():
         )
     ''')
 
-    # Commit the changes and close the connection
     conn.commit()
     conn.close()
 
-# print("Table 'articles' created successfully.")
 
 def createFileToParse(name, url):
     filename = name + ".html"
