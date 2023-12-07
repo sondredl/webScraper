@@ -1,4 +1,5 @@
 *.html
 *.db
 *.zip
+*.txt
 __pycache__
