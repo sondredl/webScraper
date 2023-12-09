@@ -1,86 +1,109 @@
-#!/usr/bin/env python
+import sys
 
+print(sys.path)
 import jsonParser
 import json
 import subprocess
 import os
-from bs4 import BeautifulSoup
 import sqlite3
 from datetime import datetime
+from bs4 import BeautifulSoup
+
 
 def getWordAndUrl():
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS WordAndUrl
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    pagename TEXT,
-                    tag_name TEXT,
-                    search_word,
-                    href TEXT,
-                    timestamp TEXT)''')
+    cursor.execute(
+        """
+            CREATE TABLE IF NOT EXISTS WordAndUrl
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pagename TEXT,
+            tag_name TEXT,
+            search_word,
+            href TEXT,
+            timestamp TEXT)
+        """
+    )
 
-    with open('inputData/searchWords.json') as json_file:
+    with open("inputData/searchWords.json") as json_file:
         search_words = json.load(json_file)
 
     for search_word in search_words:
-        cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
+        cursor.execute(
+            """SELECT filename, tag_name, sentence, href, timestamp
                         FROM Sentences
-                        WHERE sentence LIKE ?''', ('%' + search_word + '%',))
+                        WHERE sentence LIKE ?""",
+            ("%" + search_word + "%",),
+        )
 
         matching_rows = cursor.fetchall()
 
         for row in matching_rows:
             pagename, tag_name, search_word, href, timestamp = row
-            cursor.execute('''INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
-                            VALUES (?, ?, ?, ?, ?)''', (pagename, tag_name, search_word, href, timestamp))
-    
+            cursor.execute(
+                """INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                            VALUES (?, ?, ?, ?, ?)""",
+                (pagename, tag_name, search_word, href, timestamp),
+            )
+
     conn.commit()
     conn.close()
 
+
 def getCompanyAndUrl():
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS WordAndUrl
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS WordAndUrl
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
                     pagename TEXT,
                     tag_name TEXT,
                     search_word,
                     href TEXT,
-                    timestamp TEXT)''')
+                    timestamp TEXT)"""
+    )
 
-    with open('inputData/companies.json') as json_file:
+    with open("inputData/companies.json") as json_file:
         search_words = json.load(json_file)
 
     for search_word in search_words:
-        cursor.execute('''SELECT filename, tag_name, sentence, href, timestamp
+        cursor.execute(
+            """SELECT filename, tag_name, sentence, href, timestamp
                         FROM Sentences
-                        WHERE sentence LIKE ?''', ('%' + search_word + '%',))
+                        WHERE sentence LIKE ?""",
+            ("%" + search_word + "%",),
+        )
 
         matching_rows = cursor.fetchall()
 
         for row in matching_rows:
             pagename, tag_name, search_word, href, timestamp = row
-            cursor.execute('''INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
-                            VALUES (?, ?, ?, ?, ?)''', (pagename, tag_name, search_word, href, timestamp))
-    
+            cursor.execute(
+                """INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                            VALUES (?, ?, ?, ?, ?)""",
+                (pagename, tag_name, search_word, href, timestamp),
+            )
+
     conn.commit()
     conn.close()
 
 
 def updateDatabase():
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS Sentences
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS Sentences
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
                     filename TEXT,
                     pagename TEXT,
                     tag_name TEXT,
                     sentence TEXT,
                     href TEXT,
-                    timestamp TEXT)''')
+                    timestamp TEXT)"""
+    )
 
     folder_path = "htmlFiles/"
 
@@ -90,36 +113,36 @@ def updateDatabase():
     previousHrefLink = ""
 
     for filename in os.listdir(folder_path):
-        if filename.endswith('.html'):
+        if filename.endswith(".html"):
             file_path = os.path.join(folder_path, filename)
 
-            with open(file_path, 'r', encoding='utf-8') as file:
-                soup = BeautifulSoup(file, 'html.parser')
+            with open(file_path, "r", encoding="utf-8") as file:
+                soup = BeautifulSoup(file, "html.parser")
 
             for tag_name in html_tags:
                 for tag in soup.find_all(tag_name):
                     content = tag.text
                     if any(word in content for word in selected_words):
-
-                        link_tag = tag.find_parent('a')
+                        link_tag = tag.find_parent("a")
                         if link_tag:
-                            href_link = link_tag.get('href')
+                            href_link = link_tag.get("href")
                             dot_index = filename.find(".")
                             pageName = filename[:dot_index]
                             if not href_link.startswith("https"):
-                                href_link = getUrl(pageName, link_tag.get('href'))
+                                href_link = getUrl(pageName, link_tag.get("href"))
 
-                        if (href_link == previousHrefLink):
-                            href_link = "" 
+                        if href_link == previousHrefLink:
+                            href_link = ""
                         else:
                             previousHrefLink = href_link
-                        
+
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        
 
                         if not (content == previousInsertion) and href_link != "":
-                            cursor.execute("INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)", 
-                                                                    (filename, tag_name, content, href_link, timestamp))
+                            cursor.execute(
+                                "INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)",
+                                (filename, tag_name, content, href_link, timestamp),
+                            )
                             previousInsertion = content
 
     conn.commit()
@@ -133,18 +156,20 @@ def createNewColumn(cursor, table_name, column_name):
         return
     print("FAILED TO ADD COLUMN TO TABLE")
 
+
 def doesColumnExist(cursor, table_name, column_name):
     cursor.execute(f"PRAGMA table_info({table_name})")
-    
+
     columns = cursor.fetchall()
-    
+
     return any(column[1] == column_name for column in columns)
 
+
 def fixHrfLinks():
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
-    tableName = 'Sentences'
+    tableName = "Sentences"
     cursor.execute(f"select * from {tableName}")
     rows = cursor.fetchall()
 
@@ -160,14 +185,14 @@ def fixHrfLinks():
     conn.commit()
     conn.close()
 
+
 def getUrl(pageName, href):
     web_pages = jsonParser.webPages()
 
     if not href.startswith("https"):
         for page in web_pages:
-            if (pageName == page[0]):
+            if pageName == page[0]:
                 href_link = page[1] + href
                 return href_link
     else:
         return
-

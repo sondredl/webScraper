@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import json
 
+
 def webPages():
-    json_file_path = 'inputData/webPages.json'  
-    with open(json_file_path, 'r') as json_file:
+    json_file_path = "inputData/webPages.json"
+    with open(json_file_path, "r") as json_file:
         web_pages = json.load(json_file)
 
     webPage_array = []
@@ -12,9 +13,10 @@ def webPages():
         webPage_array.append(pageData)
     return webPage_array
 
+
 def htmlTags():
-    json_file_path = 'inputData/htmlTags.json'  
-    with open(json_file_path, 'r') as json_file:
+    json_file_path = "inputData/htmlTags.json"
+    with open(json_file_path, "r") as json_file:
         htmlTags = json.load(json_file)
 
     tag_array = []
@@ -22,11 +24,11 @@ def htmlTags():
     for tag in htmlTags:
         tag_array.append(tag)
     return tag_array
-    
+
 
 def searchWords():
-    json_file_path = 'inputData/searchWords.json'  
-    with open(json_file_path, 'r') as json_file:
+    json_file_path = "inputData/searchWords.json"
+    with open(json_file_path, "r") as json_file:
         word_list = json.load(json_file)
 
     word_array = []
@@ -35,9 +37,10 @@ def searchWords():
         word_array.append(word)
     return word_array
 
+
 def companyNames():
-    json_file_path = 'inputData/companies.json'  
-    with open(json_file_path, 'r') as json_file:
+    json_file_path = "inputData/companies.json"
+    with open(json_file_path, "r") as json_file:
         word_list = json.load(json_file)
 
     word_array = []

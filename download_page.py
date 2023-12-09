@@ -4,16 +4,18 @@ import requests
 from bs4 import BeautifulSoup
 import sqlite3
 
-def downloadArticlePage(url):
+
+def downloadArticlePage(url, idx):
     path = "articles/"
-    output_file = path + url
+    output_file = path + idx
 
     response = requests.get(url)
+    print(response)
 
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(response.text, "html.parser")
 
-        with open(output_file, 'w', encoding='utf-8') as file:
+        with open(output_file, "w", encoding="utf-8") as file:
             file.write(str(soup))
 
         print(f"Webpage content saved to {output_file}")
@@ -22,20 +24,24 @@ def downloadArticlePage(url):
 
 
 def download_all_article_pages():
-    conn = sqlite3.connect('your_database.db')
+    conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
     try:
-        cursor.execute('SELECT href FROM WordAndUrl')
+        cursor.execute("SELECT href FROM WordAndUrl")
         urls = cursor.fetchall()
 
-        for url in urls:
-            downloadArticlePage(url[0])  
+        cursor.execute("SELECT id FROM WordAndUrl")
+        ids = cursor.fetchall()
+
+        for index, url in urls:
+            downloadArticlePage(url[0], index)
 
     except Exception as e:
         print(f"Error: {e}")
 
     finally:
         conn.close()
+
 
 download_all_article_pages()
