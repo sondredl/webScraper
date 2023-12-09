@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 
-import sys
-
-print("system path: ")
-print(sys.path)
-print("end")
 import jsonParser
 import subprocess
 import dbCleaner
 import multiprocessing
 import download_page
 import htmlParser
-
 import sqlite3
 
 
