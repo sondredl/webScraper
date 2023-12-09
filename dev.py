@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-import jsonParser
 import subprocess
-import dbCleaner
-import multiprocessing
-import download_page
-import htmlParser
 import sqlite3
+import multiprocessing
+from src import jsonParser
+from src import dbCleaner
+from src import download_page
+from src import htmlParser
 
 
 def createArticlesTable():
@@ -21,9 +21,8 @@ def createArticlesTable():
             subtitle TEXT,
             text TEXT NOT NULL
         )
-    """
+        """
     )
-
     conn.commit()
     conn.close()
 
@@ -42,13 +41,12 @@ def createContentFiles():
         createFileToParse(page[0], page[1])
 
 
-database_path = "your_database.db"
-table_name = "WordAndUrl"
-column_name = "href"
-date_column = "timestamp"
-
-
 def main():
+    database_path = "your_database.db"
+    table_name = "WordAndUrl"
+    column_name = "href"
+    date_column = "timestamp"
+
     createContentFiles()
     htmlParser.updateDatabase()
     htmlParser.getWordAndUrl()

@@ -1,13 +1,12 @@
-import sys
-
-print(sys.path)
-import jsonParser
 import json
 import subprocess
 import os
 import sqlite3
 from datetime import datetime
 from bs4 import BeautifulSoup
+
+# import jsonParser
+from src import jsonParser
 
 
 def getWordAndUrl():

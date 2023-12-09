@@ -44,4 +44,4 @@ def increment_counter(counter=[0]):
     return counter[0]
 
 
-download_all_article_pages()
+# download_all_article_pages()
