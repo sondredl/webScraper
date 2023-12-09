@@ -27,7 +27,6 @@ def download_all_article_pages():
     conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
-    # try:
     cursor.execute("SELECT href FROM WordAndUrl")
     urls = cursor.fetchall()
 
