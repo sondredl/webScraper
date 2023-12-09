@@ -27,7 +27,7 @@ def createArticlesTable():
             subtitle TEXT,
             text TEXT NOT NULL
         )
-                """
+    """
     )
 
     conn.commit()
