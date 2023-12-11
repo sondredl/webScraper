@@ -1,9 +1,20 @@
 #!/usr/bin/env python
+
+import os
 from bs4 import BeautifulSoup
 
 
+def loop_all_articles():
+    directory_path = "../articles/"
+
+    file_list = os.listdir(directory_path)
+
+    for file_name in file_list:
+        file_name_path = directory_path + file_name
+        get_article_from_url(file_name_path)
+
+
 def get_article_from_url(filename):
-    # with open("article.html", "r", encoding="utf-8") as file:
     with open(filename, "r", encoding="utf-8") as file:
         html_content = file.read()
 
@@ -23,3 +34,6 @@ def get_article_from_url(filename):
         output_file.write(f"Text:\n{text}")
 
     print("Extraction completed. Check content.txt for the result.")
+
+
+loop_all_articles()

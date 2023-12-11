@@ -7,6 +7,7 @@ from src import jsonParser
 from src import dbCleaner
 from src import download_page
 from src import htmlParser
+from src import extractArticle
 
 
 def createArticlesTable():
