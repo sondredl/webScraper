@@ -35,11 +35,9 @@ def insert_article(connection, title, subtitle, text):
 def loop_all_articles():
     directory_path = "../articles/"
 
-    # Connect to the SQLite database
     db_path = "../your_database.db"
     connection = sqlite3.connect(db_path)
 
-    # Create the articles table if it doesn't exist
     create_articles_table(connection)
 
     file_list = os.listdir(directory_path)
@@ -48,7 +46,6 @@ def loop_all_articles():
         file_name_path = os.path.join(directory_path, file_name)
         get_article_from_file(file_name_path, connection)
 
-    # Close the database connection
     connection.close()
 
 
@@ -66,7 +63,6 @@ def get_article_from_file(filename, connection):
 
     text = "\n".join([p.text.strip() for p in soup.find_all("p")])
 
-    # Insert the article into the database
     insert_article(connection, title, subtitle, text)
 
     print(f"Article '{title}' inserted into the database.")
