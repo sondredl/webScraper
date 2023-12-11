@@ -1,20 +1,58 @@
 #!/usr/bin/env python
 
 import os
+import sqlite3
 from bs4 import BeautifulSoup
+
+
+def create_articles_table(connection):
+    cursor = connection.cursor()
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            subtitle TEXT,
+            text TEXT
+        )
+    """
+    )
+    connection.commit()
+
+
+def insert_article(connection, title, subtitle, text):
+    cursor = connection.cursor()
+    cursor.execute(
+        """
+        INSERT INTO articles (title, subtitle, text)
+        VALUES (?, ?, ?)
+    """,
+        (title, subtitle, text),
+    )
+    connection.commit()
 
 
 def loop_all_articles():
     directory_path = "../articles/"
 
+    # Connect to the SQLite database
+    db_path = "../your_database.db"
+    connection = sqlite3.connect(db_path)
+
+    # Create the articles table if it doesn't exist
+    create_articles_table(connection)
+
     file_list = os.listdir(directory_path)
 
     for file_name in file_list:
-        file_name_path = directory_path + file_name
-        get_article_from_url(file_name_path)
+        file_name_path = os.path.join(directory_path, file_name)
+        get_article_from_file(file_name_path, connection)
+
+    # Close the database connection
+    connection.close()
 
 
-def get_article_from_url(filename):
+def get_article_from_file(filename, connection):
     with open(filename, "r", encoding="utf-8") as file:
         html_content = file.read()
 
@@ -28,12 +66,10 @@ def get_article_from_url(filename):
 
     text = "\n".join([p.text.strip() for p in soup.find_all("p")])
 
-    with open("content.txt", "w", encoding="utf-8") as output_file:
-        output_file.write(f"Title: {title}\n")
-        output_file.write(f"Subtitle: {subtitle}\n\n")
-        output_file.write(f"Text:\n{text}")
+    # Insert the article into the database
+    insert_article(connection, title, subtitle, text)
 
-    print("Extraction completed. Check content.txt for the result.")
+    print(f"Article '{title}' inserted into the database.")
 
 
-loop_all_articles()
+# loop_all_articles()
