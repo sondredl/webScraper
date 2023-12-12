@@ -1,12 +1,31 @@
 #!/usr/bin/env python
 
-import jsonParser
-import htmlParser
-import dbCleaner
-
 import subprocess
-import time
+import sqlite3
 import multiprocessing
+from src import jsonParser
+from src import dbCleaner
+from src import download_page
+from src import htmlParser
+from src import extractArticle
+
+
+def createArticlesTable():
+    conn = sqlite3.connect("your_database.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subtitle TEXT,
+            text TEXT NOT NULL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
 
 
 def createFileToParse(name, url):
@@ -35,7 +54,6 @@ def main():
         htmlParser.updateDatabase()
         htmlParser.getWordAndUrl()
         htmlParser.getCompanyAndUrl()
-        subprocess.run(["rm", "-rf", "htmlFiles/"])
 
         cleanDuplicates = multiprocessing.Process(
             target=dbCleaner.remove_duplicates_on_date(
@@ -45,7 +63,14 @@ def main():
         cleanDuplicates.start()
         cleanDuplicates.join()
         print("done cleaning duplicates")
+
         dbCleaner.reorganize_ids(database_path)
+        dbCleaner.clean_last_update()
+
+        createArticlesTable()
+        download_page.download_all_article_pages()
+
+        src.extractArticle.loop_all_articles()
 
         print("sleep for 5000 seconds")
         time.sleep(5000)
