@@ -3,3 +3,5 @@
 *.zip
 *.txt
 __pycache__
+build/
+output_executable.spec
