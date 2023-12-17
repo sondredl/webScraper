@@ -42,13 +42,12 @@ def createContentFiles():
         createFileToParse(page[0], page[1])
 
 
-database_path = "your_database.db"
-table_name = "WordAndUrl"
-column_name = "href"
-date_column = "timestamp"
-
-
 def main():
+    database_path = "your_database.db"
+    table_name = "WordAndUrl"
+    column_name = "href"
+    date_column = "timestamp"
+
     while True:
         createContentFiles()
         htmlParser.updateDatabase()
@@ -70,10 +69,7 @@ def main():
         createArticlesTable()
         download_page.download_all_article_pages()
 
-        src.extractArticle.loop_all_articles()
-
-        print("sleep for 5000 seconds")
-        time.sleep(5000)
+        extractArticle.loop_all_articles()
 
 
 if __name__ == "__main__":

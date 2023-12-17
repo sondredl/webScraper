@@ -68,7 +68,7 @@ def main():
     createArticlesTable()
     download_page.download_all_article_pages()
 
-    src.extractArticle.loop_all_articles()
+    extractArticle.loop_all_articles()
 
 
 if __name__ == "__main__":
