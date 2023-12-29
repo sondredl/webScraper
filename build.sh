@@ -6,6 +6,6 @@ OUTPUT_DIR="dist"
 OUTPUT_NAME="output_executable"
 cd "$(dirname "$0")"
 mkdir -p "$OUTPUT_DIR"
-pyinstaller --onefile --windowed --distpath "$OUTPUT_DIR" --name "$OUTPUT_NAME" "$MAIN_SCRIPT" "${SRC_DIR}/"*.py
+pyinstaller --onefile --distpath "$OUTPUT_DIR" --name "$OUTPUT_NAME" "$MAIN_SCRIPT" "${SRC_DIR}/"*.py
 
 echo "Executable at $OUTPUT_DIR/$OUTPUT_NAME"
