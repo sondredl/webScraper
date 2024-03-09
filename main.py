@@ -48,28 +48,28 @@ def main():
     column_name = "href"
     date_column = "timestamp"
 
-    while True:
-        createContentFiles()
-        htmlParser.updateDatabase()
-        htmlParser.getWordAndUrl()
-        htmlParser.getCompanyAndUrl()
+    #    while True:
+    createContentFiles()
+    htmlParser.updateDatabase()
+    htmlParser.getWordAndUrl()
+    htmlParser.getCompanyAndUrl()
 
-        cleanDuplicates = multiprocessing.Process(
-            target=dbCleaner.remove_duplicates_on_date(
-                database_path, table_name, column_name, date_column
-            )
+    cleanDuplicates = multiprocessing.Process(
+        target=dbCleaner.remove_duplicates_on_date(
+            database_path, table_name, column_name, date_column
         )
-        cleanDuplicates.start()
-        cleanDuplicates.join()
-        print("done cleaning duplicates")
+    )
+    cleanDuplicates.start()
+    cleanDuplicates.join()
+    print("done cleaning duplicates")
 
-        dbCleaner.reorganize_ids(database_path)
-        dbCleaner.clean_last_update()
+    dbCleaner.reorganize_ids(database_path)
+    dbCleaner.clean_last_update()
 
-        createArticlesTable()
-        download_page.download_all_article_pages()
+    createArticlesTable()
+    download_page.download_all_article_pages()
 
-        extractArticle.loop_all_articles()
+    extractArticle.loop_all_articles()
 
 
 if __name__ == "__main__":
