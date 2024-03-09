@@ -2,6 +2,7 @@
 *.db
 *.zip
 *.txt
+**/*CMakeLists.txt
 __pycache__
 build/
 output_executable.spec
