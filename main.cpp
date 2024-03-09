@@ -41,35 +41,7 @@
 //     for page in pageList:
 //         createFileToParse(page[0], page[1])
 
-
-// def main():
-//     database_path = "your_database.db"
-//     table_name = "WordAndUrl"
-//     column_name = "href"
-//     date_column = "timestamp"
-
-//     while True:
-//         createContentFiles()
-//         htmlParser.updateDatabase()
-//         htmlParser.getWordAndUrl()
-//         htmlParser.getCompanyAndUrl()
-
-//         cleanDuplicates = multiprocessing.Process(
-//             target=dbCleaner.remove_duplicates_on_date(
-//                 database_path, table_name, column_name, date_column
-//             )
-//         )
-//         cleanDuplicates.start()
-//         cleanDuplicates.join()
-//         print("done cleaning duplicates")
-
-//         dbCleaner.reorganize_ids(database_path)
-//         dbCleaner.clean_last_update()
-
-//         createArticlesTable()
-//         download_page.download_all_article_pages()
-
-//         extractArticle.loop_all_articles()
+#include <iostream>
 
 int main(){
 
@@ -78,29 +50,27 @@ int main(){
     // column_name = "href"
     // date_column = "timestamp"
 
-    createContentFiles()
-    htmlParser.updateDatabase()
-    htmlParser.getWordAndUrl()
-    htmlParser.getCompanyAndUrl()
+    // createContentFiles()
+    // htmlParser.updateDatabase()
+    // htmlParser.getWordAndUrl()
+    // htmlParser.getCompanyAndUrl()
 
-    cleanDuplicates = multiprocessing.Process(
-        target=dbCleaner.remove_duplicates_on_date(
-            database_path, table_name, column_name, date_column
-        )
-    )
-    cleanDuplicates.start()
-    cleanDuplicates.join()
-    print("done cleaning duplicates")
+    // cleanDuplicates = multiprocessing.Process(
+    //     target=dbCleaner.remove_duplicates_on_date(
+    //         database_path, table_name, column_name, date_column
+    //     )
+    // )
+    // cleanDuplicates.start()
+    // cleanDuplicates.join()
+    // print("done cleaning duplicates")
 
-    dbCleaner.reorganize_ids(database_path)
-    dbCleaner.clean_last_update()
+    // dbCleaner.reorganize_ids(database_path)
+    // dbCleaner.clean_last_update()
 
-    createArticlesTable()
-    download_page.download_all_article_pages()
+    // createArticlesTable()
+    // download_page.download_all_article_pages()
 
-    extractArticle.loop_all_articles()
+    // extractArticle.loop_all_articles()
+    std::cout << "hello clang" << std::endl;
+    return 0;
 }
-
-
-// if __name__ == "__main__":
-//     main()

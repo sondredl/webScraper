@@ -3,12 +3,13 @@ project(ClangScraper)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_COMPILER "Clang")
+#set(CMAKE_CXX_COMPILER "/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/bin/clang++")
+set(CMAKE_CXX_COMPILER "clang++")
 
 # Add source files
 add_executable(ClangScraper main.cpp)
 
-add_subdirectory(components)
+# add_subdirectory(components)
 
 # Optional: Include additional directories
 # include_directories(include)
