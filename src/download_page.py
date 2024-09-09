@@ -3,10 +3,12 @@
 import requests
 from bs4 import BeautifulSoup
 import sqlite3
+import os
 
 
 def downloadArticlePage(url):
     path = "articles/"
+    os.makedirs(path, exist_ok=True)
     output_file = path + str(increment_counter()) + ".html"
 
     response = requests.get(url)
