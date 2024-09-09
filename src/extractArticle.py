@@ -33,9 +33,11 @@ def insert_article(connection, title, subtitle, text):
 
 
 def loop_all_articles():
-    directory_path = "../articles/"
+    # directory_path = "../articles/"
+    directory_path = "articles/"
 
-    db_path = "../your_database.db"
+    # db_path = "../your_database.db"
+    db_path = "your_database.db"
     connection = sqlite3.connect(db_path)
 
     create_articles_table(connection)
