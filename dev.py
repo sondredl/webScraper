@@ -8,6 +8,7 @@ from src import dbCleaner
 from src import download_page
 from src import htmlParser
 from src import extractArticle
+import createMarkdown
 
 
 def createArticlesTable():
@@ -69,6 +70,8 @@ def main():
     download_page.download_all_article_pages()
 
     extractArticle.loop_all_articles()
+
+    createMarkdown.create_markdown_overview("your_database.db", "articles.md")
 
 
 if __name__ == "__main__":
