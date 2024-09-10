@@ -9,6 +9,7 @@ from src import download_page
 from src import htmlParser
 from src import extractArticle
 import createMarkdown
+import time
 
 
 def createArticlesTable():
@@ -72,7 +73,10 @@ def main():
 
         extractArticle.loop_all_articles()
 
-createMarkdown.create_markdown_overview("your_database.db", "articles.md")
+        # createMarkdown.create_markdown_overview("your_database.db", "articles.md")
+        createMarkdown.create_markdown_overview("your_database.db", "markdown")
+        sleep_time = 7200 # seconds
+        time.sleep(sleep_time)
 
 
 

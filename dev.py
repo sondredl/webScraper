@@ -67,11 +67,11 @@ def main():
     dbCleaner.clean_last_update()
 
     createArticlesTable()
-    download_page.download_all_article_pages()
+    # download_page.download_all_article_pages()
 
-    extractArticle.loop_all_articles()
+    # extractArticle.loop_all_articles()
 
-    createMarkdown.create_markdown_overview("your_database.db", "articles.md")
+    createMarkdown.create_markdown_overview("your_database.db", "markdown")
 
 
 if __name__ == "__main__":
