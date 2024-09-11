@@ -41,7 +41,7 @@ from datetime import datetime
 
 def create_markdown_overview(db_path, output_dir):
     # Get the current date in 'YYYY-MM-DD' format
-    current_date = datetime.now().strftime('%Y-%m-%d')
+    current_date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     
     # Construct the markdown file path
     output_file = os.path.join(output_dir, f"articles_overview_{current_date}.md")
