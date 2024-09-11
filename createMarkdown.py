@@ -66,17 +66,17 @@ def create_markdown_overview(db_path, output_dir):
         # Loop through the articles and write each one to the markdown file
         for idx, article in enumerate(articles):
             title, subtitle, text = article
-
-            # Write the article title and subtitle in markdown
-            md_file.write(f"## Article {idx + 1}: {title}\n")
-            if subtitle:
-                md_file.write(f"### {subtitle}\n")
-            else:
-                md_file.write("### No subtitle\n")
-            
-            # Write the article text (truncated if necessary)
-            md_file.write(f"{text[:500]}...\n\n")  # Limit to first 500 characters
-            md_file.write("---\n\n")
+            if len(text) > 10:
+                # Write the article title and subtitle in markdown
+                md_file.write(f"## Article {idx + 1}: {title}\n")
+                if subtitle:
+                    md_file.write(f"### {subtitle}\n")
+                else:
+                    md_file.write("### No subtitle\n")
+                
+                # Write the article text (truncated if necessary)
+                md_file.write(f"{text}...\n\n")  # Limit to first 500 characters
+                md_file.write("---\n\n")
 
     # Close the database connection
     conn.close()
