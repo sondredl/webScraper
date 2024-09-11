@@ -53,6 +53,7 @@ def main():
     while True:
         createContentFiles()
         htmlParser.updateDatabase()
+        htmlParser.updateDatabaseCompany()
         htmlParser.getWordAndUrl()
         htmlParser.getCompanyAndUrl()
 

@@ -17,11 +17,11 @@ def getWordAndUrl():
         """
             CREATE TABLE IF NOT EXISTS WordAndUrl
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pagename TEXT,
-            tag_name TEXT,
-            search_word,
-            href TEXT,
-            timestamp TEXT)
+                pagename TEXT,
+                tag_name TEXT,
+                search_word TEXT,
+                href TEXT,
+                timestamp TEXT)
         """
     )
 
@@ -30,7 +30,12 @@ def getWordAndUrl():
 
     for search_word in search_words:
         cursor.execute(
-            """SELECT filename, tag_name, sentence, href, timestamp
+            """SELECT 
+                    filename, 
+                    tag_name, 
+                    sentence, 
+                    href, 
+                    timestamp
                         FROM Sentences
                         WHERE sentence LIKE ?""",
             ("%" + search_word + "%",),
@@ -41,9 +46,14 @@ def getWordAndUrl():
         for row in matching_rows:
             pagename, tag_name, search_word, href, timestamp = row
             cursor.execute(
-                """INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                """INSERT INTO WordAndUrl (
+                                        pagename, 
+                                        tag_name, 
+                                        search_word, 
+                                        href, 
+                                        timestamp)
                             VALUES (?, ?, ?, ?, ?)""",
-                (pagename, tag_name, search_word, href, timestamp),
+                (pagename, tag_name, search_word, href,  timestamp),
             )
 
     conn.commit()
@@ -59,7 +69,7 @@ def getCompanyAndUrl():
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
                     pagename TEXT,
                     tag_name TEXT,
-                    search_word,
+                    search_word TEXT,
                     href TEXT,
                     timestamp TEXT)"""
     )
@@ -69,7 +79,12 @@ def getCompanyAndUrl():
 
     for search_word in search_words:
         cursor.execute(
-            """SELECT filename, tag_name, sentence, href, timestamp
+            """SELECT 
+                filename, 
+                tag_name, 
+                sentence, 
+                href, 
+                timestamp
                         FROM Sentences
                         WHERE sentence LIKE ?""",
             ("%" + search_word + "%",),
@@ -78,9 +93,15 @@ def getCompanyAndUrl():
         matching_rows = cursor.fetchall()
 
         for row in matching_rows:
+            # company = "company name"
             pagename, tag_name, search_word, href, timestamp = row
             cursor.execute(
-                """INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                """INSERT INTO WordAndUrl (
+                        pagename, 
+                        tag_name, 
+                        search_word, 
+                        href, 
+                        timestamp)
                             VALUES (?, ?, ?, ?, ?)""",
                 (pagename, tag_name, search_word, href, timestamp),
             )
@@ -89,7 +110,7 @@ def getCompanyAndUrl():
     conn.close()
 
 
-def updateDatabase():
+def updateDatabaseCompany():
     conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
 
@@ -106,8 +127,9 @@ def updateDatabase():
 
     folder_path = "htmlFiles/"
 
-    selected_words = jsonParser.searchWords()
+    # selected_words = jsonParser.searchWords()
     html_tags = jsonParser.htmlTags()
+    selected_words = jsonParser.companyNames()
     previousInsertion = ""
     previousHrefLink = ""
 
@@ -139,14 +161,79 @@ def updateDatabase():
 
                         if not (content == previousInsertion) and href_link != "":
                             cursor.execute(
-                                "INSERT INTO Sentences (filename, tag_name, sentence, href, timestamp) VALUES (?, ?, ?, ?, ?)",
+                                "INSERT INTO Sentences (filename, tag_name, sentence, href,  timestamp) VALUES (?, ?, ?, ?, ?)",
                                 (filename, tag_name, content, href_link, timestamp),
                             )
+                            # print(content)
                             previousInsertion = content
-
     conn.commit()
     conn.close()
 
+def updateDatabase():
+    conn = sqlite3.connect("your_database.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS Sentences
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    filename TEXT,
+                    pagename TEXT,
+                    tag_name TEXT,
+                    sentence TEXT,
+                    href TEXT,
+                    company TEXT,
+                    timestamp TEXT)"""
+    )
+
+    folder_path = "htmlFiles/"
+
+    selected_words = jsonParser.searchWords()
+    html_tags = jsonParser.htmlTags()
+    companies = jsonParser.companyNames()
+    previousInsertion = ""
+    previousHrefLink = ""
+
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".html"):
+            file_path = os.path.join(folder_path, filename)
+
+            with open(file_path, "r", encoding="utf-8") as file:
+                soup = BeautifulSoup(file, "html.parser")
+
+            for tag_name in html_tags:
+                for tag in soup.find_all(tag_name):
+                    content = tag.text
+                    if any(word in content for word in selected_words):
+                        link_tag = tag.find_parent("a")
+                        if link_tag:
+                            href_link = link_tag.get("href")
+                            dot_index = filename.find(".")
+                            pageName = filename[:dot_index]
+                            if not href_link.startswith("https"):
+                                href_link = getUrl(pageName, link_tag.get("href"))
+
+                        if href_link == previousHrefLink:
+                            href_link = ""
+                        else:
+                            previousHrefLink = href_link
+
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                        if not (content == previousInsertion) and href_link != "":
+                            cursor.execute(
+                                """INSERT INTO Sentences (
+                                    filename, 
+                                    tag_name, 
+                                    sentence, 
+                                    href, 
+                                    company,  
+                                    timestamp) 
+                                    VALUES (?, ?, ?, ?, ?, ?)""",
+                                (filename, tag_name, content, href_link, tag_name,  timestamp),
+                            )
+                            previousInsertion = content
+    conn.commit()
+    conn.close()
 
 def createNewColumn(cursor, table_name, column_name):
     if not doesColumnExist(cursor, table_name, column_name):
