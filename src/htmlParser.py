@@ -145,6 +145,7 @@ def updateDatabaseCompany():
                     content = tag.text
                     if any(word in content for word in selected_words):
                         link_tag = tag.find_parent("a")
+                        href_link = ""
                         if link_tag:
                             href_link = link_tag.get("href")
                             dot_index = filename.find(".")
@@ -181,7 +182,6 @@ def updateDatabase():
                     tag_name TEXT,
                     sentence TEXT,
                     href TEXT,
-                    company TEXT,
                     timestamp TEXT)"""
     )
 
@@ -226,10 +226,9 @@ def updateDatabase():
                                     tag_name, 
                                     sentence, 
                                     href, 
-                                    company,  
                                     timestamp) 
-                                    VALUES (?, ?, ?, ?, ?, ?)""",
-                                (filename, tag_name, content, href_link, tag_name,  timestamp),
+                                    VALUES (?, ?, ?, ?, ?)""",
+                                (filename, tag_name, content, href_link,   timestamp),
                             )
                             previousInsertion = content
     conn.commit()
