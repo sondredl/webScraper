@@ -10,6 +10,7 @@ from src import htmlParser
 from src import extractArticle
 import createMarkdown
 import time
+from datetime import datetime
 
 
 def createArticlesTable():
@@ -20,6 +21,7 @@ def createArticlesTable():
         """
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
             title TEXT NOT NULL,
             subtitle TEXT,
             text TEXT NOT NULL
@@ -50,6 +52,8 @@ def main():
     column_name = "href"
     date_column = "timestamp"
 
+    last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     while True:
         createContentFiles()
         htmlParser.updateDatabase()
@@ -75,11 +79,10 @@ def main():
         extractArticle.loop_all_articles()
 
         # createMarkdown.create_markdown_overview("your_database.db", "articles.md")
-        createMarkdown.create_markdown_overview("your_database.db", "markdown")
+        createMarkdown.create_markdown_overview("your_database.db", "markdown", last_time_run)
+        last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         sleep_time = 7200 # seconds
         time.sleep(sleep_time)
-
-
 
 if __name__ == "__main__":
     main()

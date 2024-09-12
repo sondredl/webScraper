@@ -2,20 +2,25 @@ import sqlite3
 import os
 from datetime import datetime
 
-def create_markdown_overview(db_path, output_dir):
+def create_markdown_overview(db_path, output_dir, last_date_time):
     # Get the current date in 'YYYY-MM-DD' format
-    current_date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    # last_date_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     
     # Construct the markdown file path
-    output_file = os.path.join(output_dir, f"articles_overview_{current_date}.md")
+    output_file = os.path.join(output_dir, f"articles_overview_{last_date_time}.md")
     
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Query the articles table
-    cursor.execute("SELECT title, subtitle, text FROM articles")
+    cursor.execute("""SELECT timestamp, title, subtitle, text 
+                   FROM articles
+                   WHERE timestamp > ? """, (last_date_time,))
     articles = cursor.fetchall()
+    print(f"last_date_time {last_date_time}")
+    # print(f"last_time_run {last_date_time}")
+    print(f"number of articles to be used {len(articles)}")
 
     # Determine the file mode ('a' for append, 'w' for write if new file)
     file_mode = 'a' if os.path.exists(output_file) else 'w'
@@ -27,11 +32,11 @@ def create_markdown_overview(db_path, output_dir):
             md_file.write("# Articles Overview\n\n")
 
         # Loop through the articles and write each one to the markdown file
-        for idx, article in enumerate(articles):
-            title, subtitle, text = article
+        for index, article in enumerate(articles):
+            timestamp, title, subtitle, text = article
             if len(text) > 10:
                 # Write the article title and subtitle in markdown
-                md_file.write(f"## Article {idx + 1}: {title}\n")
+                md_file.write(f"## Article {index + 1}: {title}\n")
                 if subtitle:
                     md_file.write(f"### {subtitle}\n")
                 else:

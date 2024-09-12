@@ -31,8 +31,8 @@ def count_word_instances(text, words):
 overall_word_count = Counter()
 
 # Process each text and update the overall counter
-for text_row in texts:
-    text_content = text_row[0]  # Get the text column from the row
+for article in texts:
+    text_content = article[0]  # Get the text column from the row
     word_count = count_word_instances(text_content, words_to_check)
     overall_word_count.update(word_count)
 
