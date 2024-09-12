@@ -3,6 +3,7 @@
 import os
 import sqlite3
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 
 def create_articles_table(connection):
@@ -11,6 +12,8 @@ def create_articles_table(connection):
         """
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sentences_id INTEGER,
+            timestamp TEXT,
             title TEXT,
             subtitle TEXT,
             text TEXT
@@ -19,15 +22,21 @@ def create_articles_table(connection):
     )
     connection.commit()
 
-
 def insert_article(connection, title, subtitle, text):
     cursor = connection.cursor()
+    # sentences_id = 42
+        # sentences_id, timestamp, title, subtitle, text = row
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     cursor.execute(
         """
-        INSERT INTO articles (title, subtitle, text)
-        VALUES (?, ?, ?)
+        INSERT INTO articles (
+            timestamp,
+            title, 
+            subtitle, 
+            text)
+        VALUES (?, ?, ?, ?)
     """,
-        (title, subtitle, text),
+        ( timestamp, title, subtitle, text),
     )
     connection.commit()
 

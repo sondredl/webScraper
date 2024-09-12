@@ -19,6 +19,8 @@ def createArticlesTable():
         """
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sentences_id INTEGER,
+            timestamp TEXT,
             title TEXT NOT NULL,
             subtitle TEXT,
             text TEXT NOT NULL
@@ -51,6 +53,7 @@ def main():
 
     createContentFiles()
     htmlParser.updateDatabase()
+    htmlParser.updateDatabaseCompany()
     htmlParser.getWordAndUrl()
     htmlParser.getCompanyAndUrl()
 
@@ -67,11 +70,11 @@ def main():
     dbCleaner.clean_last_update()
 
     createArticlesTable()
-    download_page.download_all_article_pages()
+    # download_page.download_all_article_pages()
 
-    extractArticle.loop_all_articles()
+    # extractArticle.loop_all_articles()
 
-    createMarkdown.create_markdown_overview("your_database.db", "articles.md")
+    createMarkdown.create_markdown_overview("your_database.db", "markdown")
 
 
 if __name__ == "__main__":
