@@ -151,3 +151,42 @@ def reorganize_ids(database_path, table_name="WordAndUrl"):
 
     finally:
         connection.close()
+
+def evaluateArticlesTable():
+# def insert_article(connection, title, subtitle, text):
+    db_path = "your_database.db"
+    connection = sqlite3.connect(db_path)
+
+    cursor = connection.cursor()
+    cursor.execute("PRAGMA table_info(articles)")
+    columns = cursor.fetchall()
+
+    # Extract column names
+    column_names = [column[1] for column in columns]
+
+    # If 'search_words' column doesn't exist, add it
+    if 'search_words' not in column_names:
+        cursor.execute("ALTER TABLE articles ADD COLUMN search_words TEXT")
+        print("Column 'search_words' added.")
+    else:
+        print("Column 'search_words' already exists.")
+
+    searchWords = []
+
+    # get serarchWords.json
+    # get companies.json
+
+    # get articles text
+    # search for search words
+    # append hits to searchWords list
+    cursor.execute(
+        """
+        INSERT INTO articles (
+            search_words
+            )
+        VALUES (?, )
+        """,
+        ( searchWords),
+    )
+    connection.commit()
+    connection.close()

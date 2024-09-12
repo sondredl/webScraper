@@ -14,6 +14,7 @@ def create_articles_table(connection):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sentences_id INTEGER,
             timestamp TEXT,
+            timestamp TEXT,
             title TEXT,
             subtitle TEXT,
             text TEXT

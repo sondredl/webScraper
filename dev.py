@@ -75,6 +75,7 @@ def main():
     # extractArticle.loop_all_articles()
 
     createMarkdown.create_markdown_overview("your_database.db", "markdown")
+    dbCleaner.evaluateArticlesTable()
 
 
 if __name__ == "__main__":
