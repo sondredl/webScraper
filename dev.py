@@ -19,6 +19,8 @@ def createArticlesTable():
         """
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sentences_id INTEGER,
+            timestamp TEXT,
             title TEXT NOT NULL,
             subtitle TEXT,
             text TEXT NOT NULL
