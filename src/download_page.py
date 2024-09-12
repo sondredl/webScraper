@@ -6,7 +6,7 @@ import sqlite3
 import os
 
 
-def downloadArticlePage(url):
+def downloadArticlePage(url, cursor):
     path = "articles/"
     os.makedirs(path, exist_ok=True)
     output_file = path + str(increment_counter()) + ".html"
@@ -21,6 +21,7 @@ def downloadArticlePage(url):
             file.write(str(soup))
 
         print(f"Webpage content saved to {output_file}")
+        cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
     else:
         print(f"Failed to retrieve webpage. Status code: {response.status_code}")
 
@@ -36,7 +37,9 @@ def download_all_article_pages():
     ids = cursor.fetchall()
 
     for url in urls:
-        downloadArticlePage(url[0])
+        downloadArticlePage(url[0], cursor)
+        # cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
+        # print(f'url: {url} , {url[0]}')
 
     conn.close()
 

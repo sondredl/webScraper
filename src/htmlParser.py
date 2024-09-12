@@ -17,6 +17,7 @@ def getWordAndUrl():
         """
             CREATE TABLE IF NOT EXISTS WordAndUrl
             (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                local_article_file TEXT,
                 pagename TEXT,
                 tag_name TEXT,
                 search_word TEXT,
@@ -189,7 +190,6 @@ def updateDatabase():
 
     selected_words = jsonParser.searchWords()
     html_tags = jsonParser.htmlTags()
-    companies = jsonParser.companyNames()
     previousInsertion = ""
     previousHrefLink = ""
 
@@ -228,7 +228,7 @@ def updateDatabase():
                                     href, 
                                     timestamp) 
                                     VALUES (?, ?, ?, ?, ?)""",
-                                (filename, tag_name, content, href_link,   timestamp),
+                                (pageName, tag_name, content, href_link,   timestamp),
                             )
                             previousInsertion = content
     conn.commit()
