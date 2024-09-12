@@ -51,8 +51,8 @@ def main():
     column_name = "href"
     date_column = "timestamp"
 
-    # createContentFiles()
-    # htmlParser.updateDatabase()
+    createContentFiles()
+    htmlParser.updateDatabase()
     htmlParser.updateDatabaseCompany()
     htmlParser.getWordAndUrl()
     htmlParser.getCompanyAndUrl()
@@ -70,9 +70,9 @@ def main():
     dbCleaner.clean_last_update()
 
     createArticlesTable()
-    download_page.download_all_article_pages()
+    # download_page.download_all_article_pages()
 
-    extractArticle.loop_all_articles()
+    # extractArticle.loop_all_articles()
 
     createMarkdown.create_markdown_overview("your_database.db", "markdown")
 
