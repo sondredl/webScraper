@@ -9,6 +9,7 @@ from src import download_page
 from src import htmlParser
 from src import extractArticle
 import createMarkdown
+from datetime import datetime
 
 
 def createArticlesTable():
@@ -51,11 +52,11 @@ def main():
     column_name = "href"
     date_column = "timestamp"
 
-    createContentFiles()
-    htmlParser.updateDatabase()
-    htmlParser.updateDatabaseCompany()
-    htmlParser.getWordAndUrl()
-    htmlParser.getCompanyAndUrl()
+    #createContentFiles()
+    #htmlParser.updateDatabase()
+    #htmlParser.updateDatabaseCompany()
+    #htmlParser.getWordAndUrl()
+    #htmlParser.getCompanyAndUrl()
 
     cleanDuplicates = multiprocessing.Process(
         target=dbCleaner.remove_duplicates_on_date(
@@ -74,7 +75,9 @@ def main():
 
     # extractArticle.loop_all_articles()
 
-    createMarkdown.create_markdown_overview("your_database.db", "markdown")
+    last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    createMarkdown.create_markdown_overview("your_database.db", "markdown", last_time_run)
+    dbCleaner.evaluateArticlesTable(last_time_run)
 
 
 if __name__ == "__main__":

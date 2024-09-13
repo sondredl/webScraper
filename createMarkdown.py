@@ -52,43 +52,6 @@ def create_markdown_overview(db_path, output_dir, last_date_time):
     print(f"Markdown overview saved to {output_file}")
     format_markdown_file(output_file)
 
-
-# Usage example:
-# create_markdown_overview("path/to/database.db", "output_directory_path")
-
-
-# def format_markdown_file(file_path, max_width=120):
-#     # Open the input markdown file and read its content
-#     with open(file_path, 'r') as md_file:
-#         content = md_file.read()
-
-#     # Split the content into paragraphs (by double newlines)
-#     paragraphs = content.split('\n\n')
-
-#     # Wrap each paragraph to the specified width
-#     formatted_paragraphs = []
-#     for paragraph in paragraphs:
-#         # Handle code blocks and lists (you may want to skip wrapping these)
-#         if paragraph.startswith("```") or paragraph.startswith("- ") or paragraph.startswith("* "):
-#             formatted_paragraphs.append(paragraph)
-#         else:
-#             # Wrap lines to the max_width
-#             wrapped = textwrap.fill(paragraph, width=max_width)
-#             formatted_paragraphs.append(wrapped)
-
-#     # Join the formatted paragraphs back with double newlines
-#     formatted_content = '\n\n'.join(formatted_paragraphs)
-
-#     # Write the formatted content back to the same file or a new file
-#     with open(file_path, 'w') as md_file:
-#         md_file.write(formatted_content)
-
-#     print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
-
-# Example usage
-# format_markdown_file('myFile.md', max_width=120)
-# import textwrap
-
 def format_markdown_file(file_path, max_width=120):
     # Open the input markdown file and read its content
     with open(file_path, 'r') as md_file:
@@ -104,10 +67,6 @@ def format_markdown_file(file_path, max_width=120):
             # Ensure the previous line isn't a header or list
             if len(formatted_lines) > 0 and not formatted_lines[-1].startswith('#'):
                 formatted_lines.append('\n')  # Add a blank line
-        # if line.__contains__('###') or line.__contains__('- '):
-        #     # Ensure the previous line isn't a header or list
-        #     if len(formatted_lines) > 0 and not formatted_lines[-1].startswith('#'):
-        #         formatted_lines.append('\n')  # Add a blank line
 
         # Add the line itself to the formatted list
         formatted_lines.append(line)
