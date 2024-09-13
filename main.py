@@ -1,91 +1,40 @@
-#!/usr/bin/env python
 
-import subprocess
-import sqlite3
 import multiprocessing
-from src import jsonParser
 from src import dbCleaner
 from src import download_page
 from src import htmlParser
 from src import extractArticle
+from src import databaseHandler
+from src import contentCreator
 import createMarkdown
 import time
 from datetime import datetime
 
+table_name = "WordAndUrl"
+column_name = "href"
+date_column = "timestamp"
 
-def createArticlesTable():
-    conn = sqlite3.connect("your_database.db")
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT,
-            title TEXT NOT NULL,
-            subtitle TEXT,
-            text TEXT NOT NULL
-        )
-        """
-    )
-    conn.commit()
-    conn.close()
-
-
-def createFileToParse(name, url):
-    filename = name + ".html"
-    path = "htmlFiles/"
-    path += filename
-    subprocess.run(["curl", "-L", "-o", path, url])
-
-
-def createContentFiles():
-    subprocess.run(["mkdir", "htmlFiles"])
-    pageList = jsonParser.webPages()
-    for page in pageList:
-        createFileToParse(page[0], page[1])
-
+articlesTable_name = "Articles"
+title_column_name = "title"
 
 def main():
-    database_path = "your_database.db"
-    table_name = "WordAndUrl"
-    column_name = "href"
-    date_column = "timestamp"
 
-    articlesTable_name = "Articles"
-    title_column_name = "title"
-
-    last_time_run : str
-    last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     while True:
-        createContentFiles()
+        contentCreator.createContentFiles()
+
         htmlParser.updateDatabase()
         htmlParser.updateDatabaseCompany()
         htmlParser.getWordAndUrl()
         htmlParser.getCompanyAndUrl()
 
-        cleanDuplicates = multiprocessing.Process(
-            target=dbCleaner.remove_duplicates_on_date(
-                database_path, table_name, column_name, date_column
-            )
-        )
-        cleanDuplicates.start()
-        cleanDuplicates.join()
-
-        cleanDuplicateArticles = multiprocessing.Process(
-            target=dbCleaner.remove_duplicates_on_date(
-                database_path, articlesTable_name, title_column_name, date_column
-            )
-        )
-        cleanDuplicateArticles.start()
-        cleanDuplicateArticles.join()
-        print("done cleaning duplicates")
-
-        dbCleaner.reorganize_ids(database_path)
+        databaseHandler.cleanDuplicatesh("WordAndUrlh", "href",  "timestamp")
+        databaseHandler.cleanDuplicatesh("Articles",    "title", "timestamp")
+        
+        dbCleaner.reorganize_ids(databaseHandler.database_path)
         dbCleaner.clean_last_update()
 
-        createArticlesTable()
+        databaseHandler.createArticlesTable()
         download_page.download_all_article_pages()
 
         extractArticle.loop_all_articles()
