@@ -52,6 +52,9 @@ def main():
     column_name = "href"
     date_column = "timestamp"
 
+    articlesTable_name = "Articles"
+    title_column_name = "title"
+
     #createContentFiles()
     #htmlParser.updateDatabase()
     #htmlParser.updateDatabaseCompany()
@@ -65,6 +68,14 @@ def main():
     )
     cleanDuplicates.start()
     cleanDuplicates.join()
+
+    cleanDuplicateArticles = multiprocessing.Process(
+        target=dbCleaner.remove_duplicates_on_date(
+            database_path, articlesTable_name, title_column_name, date_column
+        )
+    )
+    cleanDuplicateArticles.start()
+    cleanDuplicateArticles.join()
     print("done cleaning duplicates")
 
     dbCleaner.reorganize_ids(database_path)
