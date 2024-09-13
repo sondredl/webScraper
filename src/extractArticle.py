@@ -56,12 +56,12 @@ def loop_all_articles():
 
     for file_name in file_list:
         file_name_path = os.path.join(directory_path, file_name)
-        get_article_from_file(file_name_path, connection)
+        get_article_from_file(file_name_path, connection, file_name[0])
 
     connection.close()
 
 
-def get_article_from_file(filename, connection):
+def get_article_from_file(filename, connection, index):
     with open(filename, "r", encoding="utf-8") as file:
         html_content = file.read()
 
@@ -77,7 +77,7 @@ def get_article_from_file(filename, connection):
 
     insert_article(connection, title, subtitle, text)
 
-    print(f"Article '{title}' inserted into the database.")
+    print(f"Article  {index} {title}' inserted into the database.")
 
 
 # loop_all_articles()
