@@ -8,11 +8,6 @@ def evaluateArticles(db_path):
     getArticle(db_path, article_id)
 
 def getArticle(db_path, article_id):
-    topicList = []
-    with open("inputData/searchWords.json") as json_file:
-        topicList += json.load(json_file)
-    with open("inputData/companies.json") as json_file:
-        topicList += json.load(json_file)
 
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -45,8 +40,31 @@ def analyzeArticle(article):
     # Split the article into sentences using punctuation markers like '.', '!', and '?'
     sentences = article.split('. ')
     sentences = [sentence.strip() for sentence in sentences if sentence]  # Remove extra spaces and empty strings
+    topicList = []
+    with open("inputData/searchWords.json") as json_file:
+        topicList += json.load(json_file)
+    with open("inputData/companies.json") as json_file:
+        topicList += json.load(json_file)
 
     for sentence in sentences:
-        words = article.split(' ')
-        if words.index():
-            print(sentence)
+        # words = article.split(' ')
+        # if words.index():
+        #     print(sentence)
+        # for word in words:
+        #     print(word)
+        contains_any_word(sentence, topicList)
+        # if contains_any_word(sentence, topicList):
+        #     print(sentence)
+
+def contains_any_word(sentence, word_list):
+    # Convert the sentence to lowercase for case-insensitive comparison
+    sentence = sentence.lower()
+    
+    # Check if any word from the word_list is in the sentence
+    containsTopic = any(word.lower() in sentence for word in word_list)
+    for word in word_list:
+        if word.lower() in sentence :
+            print(word, sentence)
+
+    # if(containsTopic):
+    return containsTopic
