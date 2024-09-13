@@ -52,6 +52,7 @@ def main():
     column_name = "href"
     date_column = "timestamp"
 
+    last_time_run : str
     last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     while True:

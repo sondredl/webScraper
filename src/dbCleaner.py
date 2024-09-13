@@ -194,7 +194,8 @@ def evaluateArticlesTable(last_date_time):
         for word in search_words:
             if word.lower() in text.lower():
                 searchWordsInArticle.append(word)
-                print(f'article_id {article_id} contains: {word} ')
+                # print(f'article_id {article_id} contains: {word} ')
+        print(f'article_id {article_id} contains: {searchWordsInArticle} ')
 
         if isinstance(searchWordsInArticle, list) and searchWordsInArticle:
             searchWordsInArticle = ','.join(searchWordsInArticle)
