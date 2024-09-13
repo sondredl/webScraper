@@ -79,6 +79,7 @@ def main():
         extractArticle.loop_all_articles()
 
         # createMarkdown.create_markdown_overview("your_database.db", "articles.md")
+        dbCleaner.evaluateArticlesTable(last_time_run)
         createMarkdown.create_markdown_overview("your_database.db", "markdown", last_time_run)
         last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         sleep_time = 7200 # seconds

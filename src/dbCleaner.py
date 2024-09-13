@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import json
 
 
 def remove_duplicates_on_date(database_path, table_name, column_name, date_column):
@@ -152,7 +153,7 @@ def reorganize_ids(database_path, table_name="WordAndUrl"):
     finally:
         connection.close()
 
-def evaluateArticlesTable():
+def evaluateArticlesTable(last_date_time):
 # def insert_article(connection, title, subtitle, text):
     db_path = "your_database.db"
     connection = sqlite3.connect(db_path)
@@ -171,22 +172,53 @@ def evaluateArticlesTable():
     else:
         print("Column 'search_words' already exists.")
 
-    searchWords = []
 
-    # get serarchWords.json
-    # get companies.json
+    with open("inputData/searchWords.json") as json_file:
+        search_words = json.load(json_file)
+    with open("inputData/companies.json") as json_file:
+        search_words += json.load(json_file)
+    print(f'search_words: {search_words}')
 
-    # get articles text
-    # search for search words
-    # append hits to searchWords list
+    # for article in articles:
+    cursor.execute("""SELECT id, timestamp, title, subtitle, text 
+                   FROM articles
+                   """)
+    articles = cursor.fetchall()
+    # articles = articles.lower()
+    for article in articles:
+        article_id = article[0]
+        # print(article_id)
+        text = article[4]
+        searchWordsInArticle = []
+        for word in search_words:
+            if word.lower() in text.lower():
+                searchWordsInArticle.append(word)
+                print(f'found {word} in article_id {article_id}')
+
+        if isinstance(searchWordsInArticle, list) and searchWordsInArticle:
+            searchWordsInArticle = ','.join(searchWordsInArticle)
+        else:
+            searchWordsInArticle = "empty"
+
+        cursor.execute(
+            """
+            UPDATE articles
+            SET search_words = ?
+            WHERE id > ?
+            """, (searchWordsInArticle, article_id)
+        )
+
+    # change variable to string, as list is not supported
+    if isinstance(searchWordsInArticle, list):
+        searchWordsInArticle = ','.join(searchWordsInArticle)
+
     cursor.execute(
         """
-        INSERT INTO articles (
-            search_words
-            )
-        VALUES (?, )
-        """,
-        ( searchWords),
+        UPDATE articles
+        SET search_words = ?
+        WHERE timestamp > ?
+        """, (searchWordsInArticle, last_date_time)
     )
+
     connection.commit()
     connection.close()
