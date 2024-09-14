@@ -95,16 +95,16 @@ def evaluateArticlesTable(last_date_time):
         )
 
     # change variable to string, as list is not supported
-    if isinstance(searchWordsInArticle, list):
-        searchWordsInArticle = ','.join(searchWordsInArticle)
+    # if isinstance(searchWordsInArticle, list):
+    #     searchWordsInArticle = ','.join(searchWordsInArticle)
 
-    cursor.execute(
-        """
-        UPDATE articles
-        SET search_words = ?
-        WHERE timestamp > ?
-        """, (searchWordsInArticle, last_date_time)
-    )
+    # cursor.execute(
+    #     """
+    #     UPDATE articles
+    #     SET search_words = ?
+    #     WHERE timestamp > ?
+    #     """, (searchWordsInArticle, last_date_time)
+    # )
 
-    connection.commit()
-    connection.close()
+    # connection.commit()
+    # connection.close()

@@ -35,8 +35,8 @@ def create_markdown_overview(db_path, output_dir, date_time, last_run_int):
         # Loop through the articles and write each one to the markdown file
         for index, article in enumerate(articles):
             timestamp, title, subtitle, text, timestamp_int = article
-            if len(text) > 10 :
-            # if len(text) > 10 and timestamp_int > last_run_int:
+            # if len(text) > 10 :
+            if len(text) > 10 and timestamp_int > last_run_int:
                 # Write the article title and subtitle in markdown
                 md_file.write(f"## Article {index + 1}: {title}\n")
                 if subtitle:
@@ -47,6 +47,8 @@ def create_markdown_overview(db_path, output_dir, date_time, last_run_int):
                 # Write the article text (truncated if necessary)
                 md_file.write(f"{text}...\n\n")  # Limit to first 500 characters
                 md_file.write("---\n\n")
+            else:
+                print("no new articles, will not make new file")
 
     # Close the database connection
     conn.close()

@@ -51,11 +51,13 @@ def download_all_article_pages(db_handler):
     last_time_run = db_handler.get_last_time_run()
     # current_time = db_handler.getCurrentTime()
 
-    if timestamp  > last_time_run:
-        for url in urls:
-            downloadArticlePage(url[0], cursor)
-            # cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
-            # print(f'url: {url} , {url[0]}')
+    # if timestamp  > last_time_run:
+    for url in urls:
+        downloadArticlePage(url[0], cursor)
+        # cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
+        # print(f'url: {url} , {url[0]}')
+    # else:
+    #     print(f"    timestamp: {timestamp} \n last_time_run: {last_time_run}")
 
     conn.close()
 
