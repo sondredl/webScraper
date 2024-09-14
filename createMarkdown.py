@@ -3,23 +3,23 @@ import os
 from datetime import datetime
 import textwrap
 
-def create_markdown_overview(db_path, output_dir, last_date_time):
+def create_markdown_overview(db_path, output_dir, date_time, last_run_int):
     # Get the current date in 'YYYY-MM-DD' format
     # last_date_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     
     # Construct the markdown file path
-    output_file = os.path.join(output_dir, f"articles_overview_{last_date_time}.md")
+    output_file = os.path.join(output_dir, f"articles_overview_{date_time}.md")
     
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Query the articles table
-    cursor.execute("""SELECT timestamp, title, subtitle, text 
+    cursor.execute("""SELECT timestamp, title, subtitle, text, timestamp_int 
                    FROM articles
-                   WHERE timestamp > ? """, (last_date_time,))
+                   WHERE timestamp_int > ? """, (last_run_int,))
     articles = cursor.fetchall()
-    print(f"last_date_time {last_date_time}")
+    print(f"last_date_time {last_run_int}")
     # print(f"last_time_run {last_date_time}")
     print(f"number of articles to be used {len(articles)}")
 
@@ -34,8 +34,9 @@ def create_markdown_overview(db_path, output_dir, last_date_time):
 
         # Loop through the articles and write each one to the markdown file
         for index, article in enumerate(articles):
-            timestamp, title, subtitle, text = article
-            if len(text) > 10:
+            timestamp, title, subtitle, text, timestamp_int = article
+            if len(text) > 10 :
+            # if len(text) > 10 and timestamp_int > last_run_int:
                 # Write the article title and subtitle in markdown
                 md_file.write(f"## Article {index + 1}: {title}\n")
                 if subtitle:

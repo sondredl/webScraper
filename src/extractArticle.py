@@ -4,43 +4,27 @@ import os
 import sqlite3
 from bs4 import BeautifulSoup
 from datetime import datetime
-
-
-def create_articles_table(connection):
-    cursor = connection.cursor()
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sentences_id INTEGER,
-            timestamp TEXT,
-            timestamp TEXT,
-            title TEXT,
-            subtitle TEXT,
-            text TEXT
-        )
-    """
-    )
-    connection.commit()
+import time
 
 def insert_article(connection, title, subtitle, text):
     cursor = connection.cursor()
     # sentences_id = 42
         # sentences_id, timestamp, title, subtitle, text = row
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp_int = int(time.time())
     cursor.execute(
         """
         INSERT INTO articles (
             timestamp,
             title, 
             subtitle, 
-            text)
-        VALUES (?, ?, ?, ?)
+            text,
+            timestamp_int)
+        VALUES (?, ?, ?, ?, ?)
     """,
-        ( timestamp, title, subtitle, text),
+        ( timestamp, title, subtitle, text, timestamp_int),
     )
     connection.commit()
-
 
 def loop_all_articles():
     # directory_path = "../articles/"
@@ -50,8 +34,6 @@ def loop_all_articles():
     db_path = "your_database.db"
     connection = sqlite3.connect(db_path)
 
-    create_articles_table(connection)
-
     file_list = os.listdir(directory_path)
 
     for file_name in file_list:
@@ -59,7 +41,6 @@ def loop_all_articles():
         get_article_from_file(file_name_path, connection, file_name[0])
 
     connection.close()
-
 
 def get_article_from_file(filename, connection, index):
     with open(filename, "r", encoding="utf-8") as file:

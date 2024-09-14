@@ -5,26 +5,11 @@ import sqlite3
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-# import jsonParser
 from src import jsonParser
-
 
 def getWordAndUrl():
     conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
-
-    cursor.execute(
-        """
-            CREATE TABLE IF NOT EXISTS WordAndUrl
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                local_article_file TEXT,
-                pagename TEXT,
-                tag_name TEXT,
-                search_word TEXT,
-                href TEXT,
-                timestamp TEXT)
-        """
-    )
 
     with open("inputData/searchWords.json") as json_file:
         search_words = json.load(json_file)
@@ -60,20 +45,9 @@ def getWordAndUrl():
     conn.commit()
     conn.close()
 
-
 def getCompanyAndUrl():
     conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
-
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS WordAndUrl
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    pagename TEXT,
-                    tag_name TEXT,
-                    search_word TEXT,
-                    href TEXT,
-                    timestamp TEXT)"""
-    )
 
     with open("inputData/companies.json") as json_file:
         search_words = json.load(json_file)
@@ -94,7 +68,6 @@ def getCompanyAndUrl():
         matching_rows = cursor.fetchall()
 
         for row in matching_rows:
-            # company = "company name"
             pagename, tag_name, search_word, href, timestamp = row
             cursor.execute(
                 """INSERT INTO WordAndUrl (
@@ -110,21 +83,9 @@ def getCompanyAndUrl():
     conn.commit()
     conn.close()
 
-
 def updateDatabaseCompany():
     conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
-
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS Sentences
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    filename TEXT,
-                    pagename TEXT,
-                    tag_name TEXT,
-                    sentence TEXT,
-                    href TEXT,
-                    timestamp TEXT)"""
-    )
 
     folder_path = "htmlFiles/"
 
@@ -174,17 +135,6 @@ def updateDatabaseCompany():
 def updateDatabase():
     conn = sqlite3.connect("your_database.db")
     cursor = conn.cursor()
-
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS Sentences
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    filename TEXT,
-                    pagename TEXT,
-                    tag_name TEXT,
-                    sentence TEXT,
-                    href TEXT,
-                    timestamp TEXT)"""
-    )
 
     folder_path = "htmlFiles/"
 
@@ -241,14 +191,12 @@ def createNewColumn(cursor, table_name, column_name):
         return
     print("FAILED TO ADD COLUMN TO TABLE")
 
-
 def doesColumnExist(cursor, table_name, column_name):
     cursor.execute(f"PRAGMA table_info({table_name})")
 
     columns = cursor.fetchall()
 
     return any(column[1] == column_name for column in columns)
-
 
 def fixHrfLinks():
     conn = sqlite3.connect("your_database.db")
@@ -269,7 +217,6 @@ def fixHrfLinks():
 
     conn.commit()
     conn.close()
-
 
 def getUrl(pageName, href):
     web_pages = jsonParser.webPages()
