@@ -1,6 +1,6 @@
 import os
 import shutil
-from src import dbCleaner
+from src.dbCleaner import databaseCleaner
 from src import download_page
 from src import htmlParser
 from src import extractArticle
@@ -40,6 +40,7 @@ def main():
 
     db_handler = DbHandler()
     data_Extractor = dataExtractor()
+    db_cleaner = databaseCleaner()
 
     db_handler.set_last_time_run()
 
@@ -64,14 +65,15 @@ def main():
         db_handler.cleanDuplicates("WordAndUrl", "href",  "timestamp")
         db_handler.cleanDuplicates("Articles",    "title", "timestamp")
         
-        dbCleaner.reorganize_ids(db_handler.database_path)
+        db_cleaner.reorganize_ids(db_handler.database_path)
         db_handler.clean_last_update()
 
         download_page.download_all_article_pages(db_handler)
 
         extractArticle.loop_all_articles()
 
-        dbCleaner.evaluateArticlesTable(db_handler.get_last_time_run())
+        db_cleaner.evaluateArticlesTable(db_handler.get_last_time_run())
+
         last_run_int = db_handler.get_last_time_run_int()
         date_time = db_handler.get_last_time_run()
         createMarkdown.create_markdown_overview("your_database.db", "markdown", date_time, last_run_int)
