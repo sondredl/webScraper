@@ -1,4 +1,3 @@
-
 import os
 import shutil
 from src import dbCleaner
@@ -7,6 +6,7 @@ from src import htmlParser
 from src import extractArticle
 from src.databaseHandler  import DbHandler
 from src import contentCreator
+from src.dataExtractor import dataExtractor
 import createMarkdown
 import time
 # from datetime import datetime
@@ -39,6 +39,8 @@ def delete_folder_contents(folder_path):
 def main():
 
     db_handler = DbHandler()
+    data_Extractor = dataExtractor()
+
     db_handler.set_last_time_run()
 
     while True:
@@ -49,10 +51,15 @@ def main():
         db_handler.createSentencesTable()
         db_handler.createWordAndUrlTable()
 
-        htmlParser.updateDatabase()
-        htmlParser.updateDatabaseCompany()
-        htmlParser.getWordAndUrl()
-        htmlParser.getCompanyAndUrl()
+        # htmlParser.updateDatabase()
+        # htmlParser.updateDatabaseCompany()
+        # htmlParser.getWordAndUrl()
+        # htmlParser.getCompanyAndUrl()
+        # data_Extractor.updateDatabase()
+        data_Extractor.updateDatabaseCompany()
+        # data_Extractor.getWordAndUrl()
+        data_Extractor.getCompanyAndUrl()
+        
 
         db_handler.cleanDuplicates("WordAndUrl", "href",  "timestamp")
         db_handler.cleanDuplicates("Articles",    "title", "timestamp")
