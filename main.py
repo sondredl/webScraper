@@ -1,99 +1,49 @@
-#!/usr/bin/env python
-
-import subprocess
-import sqlite3
-import multiprocessing
-from src import jsonParser
-from src import dbCleaner
-from src import download_page
-from src import htmlParser
-from src import extractArticle
-import createMarkdown
 import time
-from datetime import datetime
-
-
-def createArticlesTable():
-    conn = sqlite3.connect("your_database.db")
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT,
-            title TEXT NOT NULL,
-            subtitle TEXT,
-            text TEXT NOT NULL
-        )
-        """
-    )
-    conn.commit()
-    conn.close()
-
-
-def createFileToParse(name, url):
-    filename = name + ".html"
-    path = "htmlFiles/"
-    path += filename
-    subprocess.run(["curl", "-L", "-o", path, url])
-
-
-def createContentFiles():
-    subprocess.run(["mkdir", "htmlFiles"])
-    pageList = jsonParser.webPages()
-    for page in pageList:
-        createFileToParse(page[0], page[1])
-
+from src.dbCleaner          import databaseCleaner
+from src.databaseHandler    import DbHandler
+from src.dataExtractor      import dataExtractor
 
 def main():
-    database_path = "your_database.db"
-    table_name = "WordAndUrl"
-    column_name = "href"
-    date_column = "timestamp"
 
-    articlesTable_name = "Articles"
-    title_column_name = "title"
+    db_handler = DbHandler()
+    data_Extractor = dataExtractor()
+    db_cleaner = databaseCleaner()
 
-    last_time_run : str
-    last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    db_handler.set_last_time_run()
+
 
     while True:
-        createContentFiles()
-        htmlParser.updateDatabase()
-        htmlParser.updateDatabaseCompany()
-        htmlParser.getWordAndUrl()
-        htmlParser.getCompanyAndUrl()
 
-        cleanDuplicates = multiprocessing.Process(
-            target=dbCleaner.remove_duplicates_on_date(
-                database_path, table_name, column_name, date_column
-            )
-        )
-        cleanDuplicates.start()
-        cleanDuplicates.join()
+        data_Extractor.createContentFiles()
 
-        cleanDuplicateArticles = multiprocessing.Process(
-            target=dbCleaner.remove_duplicates_on_date(
-                database_path, articlesTable_name, title_column_name, date_column
-            )
-        )
-        cleanDuplicateArticles.start()
-        cleanDuplicateArticles.join()
-        print("done cleaning duplicates")
+        db_handler.create_database_and_tables()
 
-        dbCleaner.reorganize_ids(database_path)
-        dbCleaner.clean_last_update()
+        data_Extractor.updateDatabase()
+        data_Extractor.updateDatabaseCompany()
+        data_Extractor.getWordAndUrl()
+        data_Extractor.getCompanyAndUrl()
+        
 
-        createArticlesTable()
-        download_page.download_all_article_pages()
+        db_handler.cleanDuplicates("WordAndUrl", "href",  "timestamp")
+        db_handler.cleanDuplicates("Articles",    "title", "timestamp")
+        
+        db_cleaner.reorganize_ids(db_handler.database_path, "WordAndUrl")
+        db_handler.clean_last_update("WordAndUrl")
 
-        extractArticle.loop_all_articles()
+        data_Extractor.download_all_article_pages(db_handler)
+        data_Extractor.loop_all_articles()
 
-        # createMarkdown.create_markdown_overview("your_database.db", "articles.md")
-        dbCleaner.evaluateArticlesTable(last_time_run)
-        createMarkdown.create_markdown_overview("your_database.db", "markdown", last_time_run)
-        last_time_run = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        db_cleaner.evaluateArticlesTable(db_handler.get_last_time_run())
+
+        last_run_int = db_handler.get_last_time_run_int()
+        date_time = db_handler.get_last_time_run()
+
+        data_Extractor.create_markdown_overview("your_database.db", "markdown", date_time, last_run_int)
+
+        db_cleaner.delete_folder_contents("articles")
+        db_cleaner.delete_folder_contents("htmlFiles")
+        db_handler.set_last_time_run()
+
         sleep_time = 7200 # seconds
         time.sleep(sleep_time)
 

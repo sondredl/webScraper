@@ -7,7 +7,7 @@ conn = sqlite3.connect('your_database.db')
 cursor = conn.cursor()
 
 # Fetch all text content from the articles table
-cursor.execute("SELECT text FROM articles")
+cursor.execute("SELECT content FROM articles")
 texts = cursor.fetchall()
 
 # List of words to check for
