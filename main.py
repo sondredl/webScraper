@@ -1,11 +1,11 @@
 import os
 import shutil
 from src.dbCleaner import databaseCleaner
-from src import download_page
-from src import htmlParser
-from src import extractArticle
+# from src import download_page
+# from src import htmlParser
+# from src import extractArticle
 from src.databaseHandler  import DbHandler
-from src import contentCreator
+# from src import contentCreator
 from src.dataExtractor import dataExtractor
 import createMarkdown
 import time
@@ -46,34 +46,30 @@ def main():
 
     while True:
 
-        contentCreator.createContentFiles()
+        data_Extractor.createContentFiles()
 
+        db_handler.create_database_and_tables()
 
-        db_handler.createDatabaseTables()
-        # db_handler.createArticlesTable()
-        # db_handler.createSentencesTable()
-        # db_handler.createWordAndUrlTable()
-
-        # data_Extractor.updateDatabase()
+        data_Extractor.updateDatabase()
         data_Extractor.updateDatabaseCompany()
-        # data_Extractor.getWordAndUrl()
+        data_Extractor.getWordAndUrl()
         data_Extractor.getCompanyAndUrl()
         
 
         db_handler.cleanDuplicates("WordAndUrl", "href",  "timestamp")
         db_handler.cleanDuplicates("Articles",    "title", "timestamp")
         
-        db_cleaner.reorganize_ids(db_handler.database_path)
-        db_handler.clean_last_update()
+        db_cleaner.reorganize_ids(db_handler.database_path, "WordAndUrl")
+        db_handler.clean_last_update("WordAndUrl")
 
-        download_page.download_all_article_pages(db_handler)
-
-        extractArticle.loop_all_articles()
+        data_Extractor.download_all_article_pages(db_handler)
+        data_Extractor.loop_all_articles()
 
         db_cleaner.evaluateArticlesTable(db_handler.get_last_time_run())
 
         last_run_int = db_handler.get_last_time_run_int()
         date_time = db_handler.get_last_time_run()
+
         createMarkdown.create_markdown_overview("your_database.db", "markdown", date_time, last_run_int)
 
         delete_folder_contents("articles")

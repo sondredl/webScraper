@@ -3,7 +3,7 @@ from datetime import datetime
 import json
 
 class databaseCleaner:
-    def reorganize_ids(self, database_path, table_name="WordAndUrl"):
+    def reorganize_ids(self, database_path, table_name):
         database_path = "your_database.db"
         connection = sqlite3.connect(database_path)
         cursor = connection.cursor()
