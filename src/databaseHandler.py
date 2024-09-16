@@ -12,71 +12,82 @@ class DbHandler:
         self.last_time_run = datetime.min
         self.last_time_run_int : int
         self.last_time_run_int = int(time.time())
-        # self.last_time_run = datetime.min  # Initialize to a default value
-        # self.last_time_run_int = int(self.last_time_run.timestamp())
         self.database_path = "your_database.db"
-
-    def createArticlesTable(self):
-        conn = sqlite3.connect(self.database_path)
-        cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS articles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                title TEXT NOT NULL,
-                subtitle TEXT,
-                text TEXT NOT NULL
-            )
-            """
-        )
-        conn.commit()
-        conn.close()
-        self.add_column_if_not_exists(self.database_path, "articles", "timestamp_int", "INTEGER")
     
-    def createSentencesTable(self):
-        conn = sqlite3.connect("your_database.db")
-        cursor = conn.cursor()
+    def createDatabaseTables(self):
+        self.create_database_if_not_exists(self.database_path)
 
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS Sentences
-                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        filename TEXT,
-                        pagename TEXT,
-                        tag_name TEXT,
-                        sentence TEXT,
-                        href TEXT,
-                        timestamp TEXT,
-                        timestamp_int INTEGER)
-            """
-        )
-        conn.commit()
-        conn.close()
+        self.create_articles_table()
+        self.create_sentences_table()
+        self.create_word_and_url_table()
+        self.create_last_checked_table()
 
-    def create_articles_table(self, connection):
-        database_path = 'your_database.db'
-        table_name = 'articles'
-        column_name = 'timestamp_int'
-        column_type = 'INTEGER'  
+    def create_sentences_table(self):
+        tableName = "Sentences"
+
+        column_0 = "id"
+        primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"
+
+        column_1 = "filename"
+        column_2 = "pagename"
+        column_3 = "tag_name"
+        column_4 = "sentence"
+        column_5 = "href"
+        column_6 = "timestamp"
+        column_7 = "timestamp_int"
+
+        integer_type = "INTEGER"
+        text_type = "TEXT"
+
+        self.add_table_if_not_exists(self.database_path, tableName, column_0, primary_key)
+
+        self.add_column_if_not_exists(self.database_path, tableName, column_1, text_type)
+        self.add_column_if_not_exists(self.database_path, tableName, column_2, text_type)
+        self.add_column_if_not_exists(self.database_path, tableName, column_3, text_type)
+        self.add_column_if_not_exists(self.database_path, tableName, column_4, text_type)
+        self.add_column_if_not_exists(self.database_path, tableName, column_5, text_type)
+        self.add_column_if_not_exists(self.database_path, tableName, column_6, text_type)
+        self.add_column_if_not_exists(self.database_path, tableName, column_7, integer_type)
+    def create_articles_table(self):
+        table_name = "Articles"
+
+        column_0 = "id"
+        primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"
+
+        column_1 = "timestamp"
+        column_2 = "timestamp_int"
+        column_3 = "title"
+        column_4 = "subtitle"
+        column_5 = "content"
+        column_6 = "search_words"
+
+        integer_type = "INTEGER"
+        text_type = "TEXT"
+        text_type_not_null = "TEXT NOT NULL"
+
+        self.add_table_if_not_exists(self.database_path, table_name, column_0, primary_key)
+
+        self.add_column_if_not_exists(self.database_path, table_name, column_1, text_type)
+        self.add_column_if_not_exists(self.database_path, table_name, column_2, integer_type)
+        self.add_column_if_not_exists(self.database_path, table_name, column_3, text_type_not_null)
+        self.add_column_if_not_exists(self.database_path, table_name, column_4, text_type)
+        self.add_column_if_not_exists(self.database_path, table_name, column_5, text_type_not_null)
+        self.add_column_if_not_exists(self.database_path, table_name, column_6, text_type)
+    def create_last_checked_table(self):
+        connection = sqlite3.connect(self.database_path)
         cursor = connection.cursor()
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS articles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                sentences_id INTEGER,
-                timestamp TEXT,
-                timestamp TEXT,
-                title TEXT,
-                subtitle TEXT,
-                text TEXT
+            CREATE TABLE IF NOT EXISTS LastCheckedEntry (
+                id INTEGER PRIMARY KEY,
+                table_name TEXT,
+                last_entry_id INTEGER,
+                last_checked_timestamp DATETIME
             )
         """
         )
-        self.add_column_if_not_exists(database_path, table_name, column_name, column_type)
         connection.commit()
-
-    def createWordAndUrlTable(self):
+    def create_word_and_url_table(self):
         conn = sqlite3.connect("your_database.db")
         cursor = conn.cursor()
 
@@ -98,21 +109,33 @@ class DbHandler:
 
     def set_last_time_run(self):
         newest_run_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.last_time_run = self.getTimeType(newest_run_time)
-
+        self.last_time_run = self.get_time_type(newest_run_time)
     def set_last_time_run_int(self):
         self.last_time_run_int = int(time.time())
 
+    def get_highest_id(self, database_path, table_name="WordAndUrl"):
+        connection = sqlite3.connect(database_path)
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute(f"SELECT MAX(id) FROM {table_name}")
+            result = cursor.fetchone()
+
+            return result[0] if result[0] is not None else None
+
+        except sqlite3.Error as e:
+            print(f"Error: {e}")
+            return None
+
+        finally:
+            connection.close()
     def get_last_time_run(self):
         return self.last_time_run
-
     def get_last_time_run_int(self):
         return self.last_time_run_int
-    
-    def getTimeType(self, time_str):
+    def get_time_type(self, time_str):
         return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
-
-    def getCurrentTime(self):
+    def get_current_time(self):
         return datetime.strptime('%Y-%m-%d %H:%M:%S')
 
     def cleanDuplicates(self, table, column1, column2):
@@ -124,7 +147,6 @@ class DbHandler:
         _cleanDuplicates.start()
         _cleanDuplicates.join()
         print(f"removed duplicates in {table}")
-
     def remove_duplicates_on_date(self, database_path, table_name, column_name, date_column):
         last_entry_id = self.get_highest_id(database_path)
         connection = sqlite3.connect(database_path)
@@ -163,33 +185,12 @@ class DbHandler:
             connection.rollback()
         finally:
             connection.close()
-
-    def get_highest_id(self, database_path, table_name="WordAndUrl"):
-        connection = sqlite3.connect(database_path)
-        cursor = connection.cursor()
-
-        try:
-            cursor.execute(f"SELECT MAX(id) FROM {table_name}")
-            result = cursor.fetchone()
-
-            return result[0] if result[0] is not None else None
-
-        except sqlite3.Error as e:
-            print(f"Error: {e}")
-            return None
-
-        finally:
-            connection.close()
-
     def clean_last_update(self):
         database_path = "your_database.db"
         table_name = "WordAndUrl"
 
         connection = sqlite3.connect(database_path)
 
-        self.create_last_checked_table(connection)
-        print(connection)
-        print(table_name)
         self.insert_initial_record(connection, table_name)
 
         last_entry_id_checked = self.get_highest_id(database_path)
@@ -202,21 +203,6 @@ class DbHandler:
             print(f"The highest id in the WordAndUrl table is: {last_entry_id_checked}")
         else:
             print("Failed to retrieve the highest id.")
-
-    def create_last_checked_table(self, connection):
-        cursor = connection.cursor()
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS LastCheckedEntry (
-                id INTEGER PRIMARY KEY,
-                table_name TEXT,
-                last_entry_id INTEGER,
-                last_checked_timestamp DATETIME
-            )
-        """
-        )
-        connection.commit()
-
     def insert_initial_record(self, connection, table_name):
         cursor = connection.cursor()
         cursor.execute(
@@ -227,7 +213,6 @@ class DbHandler:
             (table_name, datetime.now()),
         )
         connection.commit()
-
     def update_last_checked_record(self, connection, table_name, last_entry_id):
         cursor = connection.cursor()
         cursor.execute(
@@ -240,14 +225,36 @@ class DbHandler:
         )
         connection.commit()
 
-    # def columnExists(self, database, table, column, type):
-
-# import sqlite3
-
-    def add_column_if_not_exists(self, database_path, table_name, column_name, column_type):
-        # Connect to the database
+    def create_database_if_not_exists(self, database_path):
+        # Connect to the database (this will create the database if it doesn't exist)
+        conn = sqlite3.connect(database_path)
+        print(f"Database '{database_path}' has been created or already exists.")
+        
+        # Close the connection
+        conn.close()
+    def add_table_if_not_exists(self, database_path, table_name, column_0, primary_key):
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
+
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';")
+
+        if not cursor.fetchone():
+            cursor.execute(f''' CREATE TABLE {table_name} ( {column_0} {primary_key}); ''')
+            print(f"Table '{table_name}' created.")
+        else:
+            print(f"Table '{table_name}' already exists.")
+
+        conn.commit()
+        conn.close()
+    def add_column_if_not_exists(self, database_path, table_name, column_name, column_type):
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+
+        # Ensure table exists
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        if cursor.fetchone() is None:
+            print(f"Table '{table_name}' does not exist.")
+            return
 
         # Check if the column exists using PRAGMA table_info
         cursor.execute(f"PRAGMA table_info({table_name})")
@@ -259,20 +266,13 @@ class DbHandler:
         # Check if the column exists
         if column_name not in existing_columns:
             # Column does not exist, so add it
-            cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
-            print(f"Column '{column_name}' added to table '{table_name}'.")
-
+            try:
+                cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
+                print(f"Column '{column_name}' added to table '{table_name}'.")
+            except sqlite3.OperationalError as e:
+                print(f"Error adding column '{column_name}': {e}")
         else:
             print(f"Column '{column_name}' already exists in table '{table_name}'.")
 
-        # Commit changes and close connection
         conn.commit()
         conn.close()
-
-    # Example usage
-#     database_path = 'your_database.db'
-#     table_name = 'WordAndUrl'
-#     column_name = 'new_column'
-#     column_type = 'TEXT'  # You can change this to the appropriate type (e.g., INTEGER, REAL)
-
-# add_column_if_not_exists(database_path, table_name, column_name, column_type)

@@ -15,7 +15,7 @@ def create_markdown_overview(db_path, output_dir, date_time, last_run_int):
     cursor = conn.cursor()
 
     # Query the articles table
-    cursor.execute("""SELECT timestamp, title, subtitle, text, timestamp_int 
+    cursor.execute("""SELECT timestamp, title, subtitle, content, timestamp_int 
                    FROM articles
                    WHERE timestamp_int > ? """, (last_run_int,))
     articles = cursor.fetchall()

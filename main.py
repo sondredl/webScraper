@@ -48,14 +48,12 @@ def main():
 
         contentCreator.createContentFiles()
 
-        db_handler.createArticlesTable()
-        db_handler.createSentencesTable()
-        db_handler.createWordAndUrlTable()
 
-        # htmlParser.updateDatabase()
-        # htmlParser.updateDatabaseCompany()
-        # htmlParser.getWordAndUrl()
-        # htmlParser.getCompanyAndUrl()
+        db_handler.createDatabaseTables()
+        # db_handler.createArticlesTable()
+        # db_handler.createSentencesTable()
+        # db_handler.createWordAndUrlTable()
+
         # data_Extractor.updateDatabase()
         data_Extractor.updateDatabaseCompany()
         # data_Extractor.getWordAndUrl()

@@ -18,7 +18,7 @@ def insert_article(connection, title, subtitle, text):
             timestamp,
             title, 
             subtitle, 
-            text,
+            content,
             timestamp_int)
         VALUES (?, ?, ?, ?, ?)
     """,

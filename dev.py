@@ -76,7 +76,7 @@ def compareTimestamps(db_handler):
         timestamp_str = row[0]
     
         # Now pass the individual timestamp string to getTimeType
-        timestamp = db_handler.getTimeType(timestamp_str)
+        timestamp = db_handler.get_time_type(timestamp_str)
         # print(f"{timestamp} type: {type(timestamp)}")
         # print(f'timestamp: {url} , \nlast_time_run: {url[0]}\n')
         # if timestamp > last_time_run:

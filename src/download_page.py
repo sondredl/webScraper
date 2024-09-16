@@ -45,7 +45,7 @@ def download_all_article_pages(db_handler):
         timestamp_str = row[0]
     
         # Now pass the individual timestamp string to getTimeType
-        timestamp = db_handler.getTimeType(timestamp_str)
+        timestamp = db_handler.get_time_type(timestamp_str)
     # timestamp = db_handler.getTimeType(timestamp)
 
     last_time_run = db_handler.get_last_time_run()
