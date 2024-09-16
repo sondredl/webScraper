@@ -1,40 +1,14 @@
-import os
-import shutil
-from src.dbCleaner import databaseCleaner
-# from src import download_page
-# from src import htmlParser
-# from src import extractArticle
-from src.databaseHandler  import DbHandler
-# from src import contentCreator
-from src.dataExtractor import dataExtractor
-import createMarkdown
 import time
-# from datetime import datetime
+from src.dbCleaner          import databaseCleaner
+from src.databaseHandler    import DbHandler
+from src.dataExtractor      import dataExtractor
 
-table_name = "WordAndUrl"
-column_name = "href"
-date_column = "timestamp"
+# table_name = "WordAndUrl"
+# column_name = "href"
+# date_column = "timestamp"
 
-articlesTable_name = "Articles"
-title_column_name = "title"
-
-def delete_folder_contents(folder_path):
-    # Check if the folder exists
-    if os.path.exists(folder_path):
-        # Loop through each item in the directory
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
-
-            # Check if it is a file or directory
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)  # Remove the file or symlink
-                print(f"File {file_path} deleted.")
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)  # Remove the directory and all its contents
-                print(f"Directory {file_path} deleted.")
-    else:
-        print(f"The folder {folder_path} does not exist.")
-
+# articlesTable_name = "Articles"
+# title_column_name = "title"
 
 def main():
 
@@ -70,11 +44,12 @@ def main():
         last_run_int = db_handler.get_last_time_run_int()
         date_time = db_handler.get_last_time_run()
 
-        createMarkdown.create_markdown_overview("your_database.db", "markdown", date_time, last_run_int)
+        data_Extractor.create_markdown_overview("your_database.db", "markdown", date_time, last_run_int)
 
-        delete_folder_contents("articles")
-        delete_folder_contents("htmlFiles")
+        db_cleaner.delete_folder_contents("articles")
+        db_cleaner.delete_folder_contents("htmlFiles")
         db_handler.set_last_time_run()
+
         sleep_time = 7200 # seconds
         time.sleep(sleep_time)
 

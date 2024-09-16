@@ -8,7 +8,6 @@ from src import dbCleaner
 from src import download_page
 from src import htmlParser
 from src import extractArticle
-import createMarkdown
 from datetime import datetime
 from src.databaseHandler  import DbHandler
 

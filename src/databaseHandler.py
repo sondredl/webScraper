@@ -3,7 +3,6 @@
 import sqlite3
 from datetime import datetime
 import multiprocessing
-from src import dbCleaner
 import time
 
 class DbHandler:

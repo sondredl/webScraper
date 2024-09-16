@@ -1,6 +1,7 @@
 import sqlite3
-from datetime import datetime
 import json
+import os
+import shutil
 
 class databaseCleaner:
     def reorganize_ids(self, database_path, table_name):
@@ -90,3 +91,21 @@ class databaseCleaner:
                 WHERE id > ?
                 """, (searchWordsInArticle, article_id)
             )
+
+    def delete_folder_contents(self, folder_path):
+        # Check if the folder exists
+        if os.path.exists(folder_path):
+            # Loop through each item in the directory
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+
+                # Check if it is a file or directory
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)  # Remove the file or symlink
+                    print(f"File {file_path} deleted.")
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)  # Remove the directory and all its contents
+                    print(f"Directory {file_path} deleted.")
+        else:
+            print(f"The folder {folder_path} does not exist.")
+
