@@ -3,13 +3,6 @@ from src.dbCleaner          import databaseCleaner
 from src.databaseHandler    import DbHandler
 from src.dataExtractor      import dataExtractor
 
-# table_name = "WordAndUrl"
-# column_name = "href"
-# date_column = "timestamp"
-
-# articlesTable_name = "Articles"
-# title_column_name = "title"
-
 def main():
 
     db_handler = DbHandler()
@@ -17,6 +10,7 @@ def main():
     db_cleaner = databaseCleaner()
 
     db_handler.set_last_time_run()
+
 
     while True:
 

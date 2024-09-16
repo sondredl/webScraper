@@ -5,11 +5,14 @@ import sqlite3
 import textwrap
 import time
 import requests
-from datetime import datetime
-from bs4 import BeautifulSoup
-from src import jsonParser
+from datetime       import datetime
+from bs4            import BeautifulSoup
+from src.jsonParser import JsonParser
 
 class dataExtractor:
+    def __init__(self):
+        self.m_jsonParser = JsonParser()
+
     def createFileToParse(self,name, url):
         filename = name + ".html"
         path = "htmlFiles/"
@@ -18,7 +21,7 @@ class dataExtractor:
 
     def createContentFiles(self):
         subprocess.run(["mkdir", "htmlFiles"])
-        pageList = jsonParser.webPages()
+        pageList = self.m_jsonParser.webPages()
         for page in pageList:
             self.createFileToParse(page[0], page[1])
 
@@ -159,8 +162,8 @@ class dataExtractor:
 
         folder_path = "htmlFiles/"
 
-        html_tags = jsonParser.htmlTags()
-        selected_words = jsonParser.companyNames()
+        html_tags = self.m_jsonParser.htmlTags()
+        selected_words = self.m_jsonParser.companyNames()
         previousInsertion = ""
         previousHrefLink = ""
 
@@ -206,8 +209,8 @@ class dataExtractor:
 
         folder_path = "htmlFiles/"
 
-        selected_words = jsonParser.searchWords()
-        html_tags = jsonParser.htmlTags()
+        selected_words = self.m_jsonParser.searchWords()
+        html_tags = self.m_jsonParser.htmlTags()
         previousInsertion = ""
         previousHrefLink = ""
 
@@ -273,7 +276,7 @@ class dataExtractor:
     #     conn.close()
 
     def _getUrl(self, pageName, href):
-        web_pages = jsonParser.webPages()
+        web_pages = self.m_jsonParser.webPages()
 
         if not href.startswith("https"):
             for page in web_pages:
