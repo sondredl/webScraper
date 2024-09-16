@@ -8,42 +8,27 @@ import requests
 from datetime       import datetime
 from bs4            import BeautifulSoup
 from src.jsonParser import JsonParser
+from src.databaseHandler    import DbHandler
+from src.dbCleaner          import databaseCleaner
 
 class dataExtractor:
     def __init__(self):
         self.m_jsonParser = JsonParser()
-
-    def createFileToParse(self,name, url):
-        filename = name + ".html"
-        path = "htmlFiles/"
-        path += filename
-        subprocess.run(["curl", "-L", "-o", path, url])
+        self.m_dbHandler = DbHandler()
+        self.m_dbCleaner = databaseCleaner()
+    
+    def __del__(self):
+        self.m_dbCleaner.delete_folder_contents("articles")
+        self.m_dbCleaner.delete_folder_contents("htmlFiles")
+        self.m_dbCleaner.set_last_time_run()
 
     def createContentFiles(self):
         subprocess.run(["mkdir", "htmlFiles"])
         pageList = self.m_jsonParser.webPages()
         for page in pageList:
-            self.createFileToParse(page[0], page[1])
+            self._createFileToParse(page[0], page[1])
 
-    def downloadArticlePage(self, url, cursor):
-        path = "articles/"
-        os.makedirs(path, exist_ok=True)
-        output_file = path + str(self.increment_counter()) + ".html"
-
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-
-            with open(output_file, "w", encoding="utf-8") as file_url:
-                file_url.write(str(soup))
-
-                print(f"Webpage content saved to {output_file}")
-            cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
-        else:
-            print(f"Failed to retrieve webpage. Status code: {response.status_code}")
-
-    def download_all_article_pages(self, db_handler):
+    def download_all_article_pages(self):
         conn = sqlite3.connect("your_database.db")
         cursor = conn.cursor()
 
@@ -60,25 +45,21 @@ class dataExtractor:
             timestamp_str = row[0]
         
             # Now pass the individual timestamp string to getTimeType
-            timestamp = db_handler.get_time_type(timestamp_str)
+            timestamp = self.m_dbHandler.get_time_type(timestamp_str)
         # timestamp = db_handler.getTimeType(timestamp)
 
-        last_time_run = db_handler.get_last_time_run()
+        last_time_run = self.m_dbHandler.get_last_time_run()
         # current_time = db_handler.getCurrentTime()
 
         # if timestamp  > last_time_run:
         for url in urls:
-            self.downloadArticlePage(url[0], cursor)
+            self._downloadArticlePage(url[0], cursor)
             # cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
             # print(f'url: {url} , {url[0]}')
         # else:
         #     print(f"    timestamp: {timestamp} \n last_time_run: {last_time_run}")
 
         conn.close()
-
-    def increment_counter(self, counter=[0]):
-        counter[0] += 1
-        return counter[0]
 
     def getWordAndUrl(self):
         conn = sqlite3.connect("your_database.db")
@@ -255,55 +236,6 @@ class dataExtractor:
         conn.commit()
         conn.close()
 
-    # def fixHrfLinks(self):
-    #     conn = sqlite3.connect("your_database.db")
-    #     cursor = conn.cursor()
-
-    #     tableName = "Sentences"
-    #     cursor.execute(f"select * from {tableName}")
-    #     rows = cursor.fetchall()
-
-    #     web_pages = jsonParser.webPages()
-    #     web_pages += jsonParser.companyNames()
-
-    #     for row in rows:
-    #         if not row[4].startswith("https"):
-    #             for page in web_pages:
-    #                 href_link = page[1] + row[4]
-    #                 cursor.execute("INSERT INTO Sentences ( href) VALUES ( ?)", (href_link))
-
-    #     conn.commit()
-    #     conn.close()
-
-    def _getUrl(self, pageName, href):
-        web_pages = self.m_jsonParser.webPages()
-
-        if not href.startswith("https"):
-            for page in web_pages:
-                if pageName == page[0]:
-                    href_link = page[1] + href
-                    return href_link
-        else:
-            return
-
-    def insert_article(self, connection, title, subtitle, text):
-        cursor = connection.cursor()
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        timestamp_int = int(time.time())
-        cursor.execute(
-            """
-            INSERT INTO articles (
-                timestamp,
-                title, 
-                subtitle, 
-                content,
-                timestamp_int)
-            VALUES (?, ?, ?, ?, ?)
-        """,
-            ( timestamp, title, subtitle, text, timestamp_int),
-        )
-        connection.commit()
-
     def loop_all_articles(self):
         # directory_path = "../articles/"
         directory_path = "articles/"
@@ -316,34 +248,18 @@ class dataExtractor:
 
         for file_name in file_list:
             file_name_path = os.path.join(directory_path, file_name)
-            self.get_article_from_file(file_name_path, connection, file_name[0])
+            self._get_article_from_file(file_name_path, connection, file_name[0])
 
         connection.close()
 
-    def get_article_from_file(self, filename, connection, index):
-        with open(filename, "r", encoding="utf-8") as file:
-            html_content = file.read()
-
-        soup = BeautifulSoup(html_content, "html.parser")
-
-        title_tag = soup.title
-        subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
-
-        title = title_tag.text.strip() if title_tag else "No Title Found"
-        subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
-
-        text = "\n".join([p.text.strip() for p in soup.find_all("p")])
-
-        self.insert_article(connection, title, subtitle, text)
-
-        print(f"Article  {index} {title}' inserted into the database.")
-
-    def create_markdown_overview(self, db_path, output_dir, date_time, last_run_int):
+    def create_markdown_overview(self, db_path, output_dir):
+        last_time_run = self.m_dbHandler.get_last_time_run()
+        last_time_run_int = self.m_dbHandler.get_last_time_run_int()
         # Get the current date in 'YYYY-MM-DD' format
         # last_date_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
         # Construct the markdown file path
-        output_file = os.path.join(output_dir, f"articles_overview_{date_time}.md")
+        output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
         
         # Connect to the SQLite database
         conn = sqlite3.connect(db_path)
@@ -352,9 +268,9 @@ class dataExtractor:
         # Query the articles table
         cursor.execute("""SELECT timestamp, title, subtitle, content, timestamp_int 
                     FROM articles
-                    WHERE timestamp_int > ? """, (last_run_int,))
+                    WHERE timestamp_int > ? """, (last_time_run_int,))
         articles = cursor.fetchall()
-        print(f"last_date_time {last_run_int}")
+        print(f"last_date_time {last_time_run_int}")
         # print(f"last_time_run {last_date_time}")
         print(f"number of articles to be used {len(articles)}")
 
@@ -371,7 +287,7 @@ class dataExtractor:
             for index, article in enumerate(articles):
                 timestamp, title, subtitle, text, timestamp_int = article
                 # if len(text) > 10 :
-                if len(text) > 10 and timestamp_int > last_run_int:
+                if len(text) > 10 and timestamp_int > last_time_run_int:
                     # Write the article title and subtitle in markdown
                     md_file.write(f"## Article {index + 1}: {title}\n")
                     if subtitle:
@@ -388,9 +304,21 @@ class dataExtractor:
         # Close the database connection
         conn.close()
         print(f"Markdown overview saved to {output_file}")
-        self.format_markdown_file(output_file)
+        self._format_markdown_file(output_file)
 
-    def format_markdown_file(self, file_path, max_width=120):
+    def cleanDuplicates(self):
+        self.m_dbHandler.cleanDuplicates("WordAndUrl", "href",  "timestamp")
+        self.m_dbHandler.cleanDuplicates("Articles",    "title", "timestamp")
+        self.m_dbCleaner.reorganize_ids(self.m_dbHandler.database_path, "WordAndUrl")
+        self.m_dbHandler.clean_last_update("WordAndUrl")
+
+    def _createFileToParse(self,name, url):
+        filename = name + ".html"
+        path = "htmlFiles/"
+        path += filename
+        subprocess.run(["curl", "-L", "-o", path, url])
+
+    def _format_markdown_file(self, file_path, max_width=120):
         # Open the input markdown file and read its content
         with open(file_path, 'r') as md_file:
             content = md_file.read()
@@ -434,3 +362,72 @@ class dataExtractor:
             md_file.write(formatted_content)
 
         print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
+
+    def _get_article_from_file(self, filename, connection, index):
+        with open(filename, "r", encoding="utf-8") as file:
+            html_content = file.read()
+
+        soup = BeautifulSoup(html_content, "html.parser")
+
+        title_tag = soup.title
+        subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
+
+        title = title_tag.text.strip() if title_tag else "No Title Found"
+        subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
+
+        text = "\n".join([p.text.strip() for p in soup.find_all("p")])
+
+        self._insert_article(connection, title, subtitle, text)
+
+        print(f"Article  {index} {title}' inserted into the database.")
+
+    def _insert_article(self, connection, title, subtitle, text):
+        cursor = connection.cursor()
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_int = int(time.time())
+        cursor.execute(
+            """
+            INSERT INTO articles (
+                timestamp,
+                title, 
+                subtitle, 
+                content,
+                timestamp_int)
+            VALUES (?, ?, ?, ?, ?)
+        """,
+            ( timestamp, title, subtitle, text, timestamp_int),
+        )
+        connection.commit()
+
+    def _getUrl(self, pageName, href):
+        web_pages = self.m_jsonParser.webPages()
+
+        if not href.startswith("https"):
+            for page in web_pages:
+                if pageName == page[0]:
+                    href_link = page[1] + href
+                    return href_link
+        else:
+            return
+
+    def _increment_counter(self, counter=[0]):
+        counter[0] += 1
+        return counter[0]
+
+    def _downloadArticlePage(self, url, cursor):
+        path = "articles/"
+        os.makedirs(path, exist_ok=True)
+        output_file = path + str(self._increment_counter()) + ".html"
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            with open(output_file, "w", encoding="utf-8") as file_url:
+                file_url.write(str(soup))
+
+                print(f"Webpage content saved to {output_file}")
+            cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
+        else:
+            print(f"Failed to retrieve webpage. Status code: {response.status_code}")

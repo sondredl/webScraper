@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import json
 
+import json
 
 class JsonParser:
     def webPages(self):
@@ -14,7 +14,6 @@ class JsonParser:
             webPage_array.append(pageData)
         return webPage_array
 
-
     def htmlTags(self):
         json_file_path = "inputData/htmlTags.json"
         with open(json_file_path, "r") as json_file:
@@ -26,7 +25,6 @@ class JsonParser:
             tag_array.append(tag)
         return tag_array
 
-
     def searchWords(self):
         json_file_path = "inputData/searchWords.json"
         with open(json_file_path, "r") as json_file:
@@ -37,7 +35,6 @@ class JsonParser:
         for word in word_list:
             word_array.append(word)
         return word_array
-
 
     def companyNames(self):
         json_file_path = "inputData/companies.json"
