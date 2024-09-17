@@ -6,7 +6,7 @@ def main():
 
         data_Extractor = dataExtractor()
 
-        data_Extractor.download_web_pages() # downloads news pages
+        # data_Extractor.download_web_pages() # downloads news pages
         data_Extractor.updateDatabase("temp.db")     # get articles from news pages and store url to database searc_word
         data_Extractor.getWordAndUrl("temp.db")      # filter articles in word_and_url to get the ones with search word hits
         data_Extractor.getCompanyAndUrl("temp.db")   # filter articles in word_and_url to get the ones with search word hits

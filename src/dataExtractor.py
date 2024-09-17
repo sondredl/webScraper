@@ -111,7 +111,7 @@ class dataExtractor:
                 cursor.execute("""
                     INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
                     VALUES (?, ?, ?, ?, ?)""",
-                                            (pagename, tag_name, search_word, href, timestamp),
+                    (pagename, tag_name, search_word, href, timestamp),
                 )
 
         conn.commit()
@@ -176,6 +176,7 @@ class dataExtractor:
                 else:
                     print("no new articles, will not make new file")
 
+        conn.commit()
         conn.close()
         print(f"Markdown overview saved to {output_file}")
         self._format_markdown_file(output_file)
@@ -366,6 +367,7 @@ class dataExtractor:
             print(f"Webpage content saved to the database in 'raw_articles'.")
         else:
             print(f"Failed to retrieve webpage. Status code: {response.status_code}")
+        conn.commit()
         conn.close()
 
     def _extract_search_words(self, soup):
