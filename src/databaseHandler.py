@@ -9,10 +9,10 @@ class DbHandler:
 
     def __init__(self):
         self.last_time_run = datetime.min
-        last_time_run_int : int
-        last_time_run_int = int(time.time())
+        self.last_time_run_int : int
+        self.last_time_run_int = int(time.time())
         self.database_path = "your_database.db"
-        self.create_database_and_tables(self)
+        self.create_database_and_tables()
     
     def create_database_and_tables(self):
         self._create_database_if_not_exists(self.database_path)

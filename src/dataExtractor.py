@@ -16,29 +16,35 @@ class dataExtractor:
         self.m_jsonParser = JsonParser()
         self.m_dbHandler = DbHandler()
         self.m_dbCleaner = databaseCleaner()
+        self.create_folder_if_none_exists("htmlFiles")
+        self.create_folder_if_none_exists("markdown")
+        self.create_folder_if_none_exists("articles")
     
-    def __del__(self):
-        self.m_dbCleaner.delete_folder_contents("articles")
-        self.m_dbCleaner.delete_folder_contents("htmlFiles")
-        self.m_dbCleaner.set_last_time_run()
+    def create_folder_if_none_exists(self, folderName):
+        subprocess.run(["mkdir", "folderName"])
 
-    def createContentFiles(self):
-        subprocess.run(["mkdir", "htmlFiles"])
+    def download_web_pages(self):
         pageList = self.m_jsonParser.webPages()
         for page in pageList:
-            self._createFileToParse(page[0], page[1])
+            self._download_web_pages(page[0], page[1])
 
     def download_all_article_pages(self):
         conn = sqlite3.connect("your_database.db")
         cursor = conn.cursor()
 
-        cursor.execute("SELECT href FROM WordAndUrl")
+        cursor.execute("""
+            SELECT href 
+            FROM WordAndUrl""")
         urls = cursor.fetchall()
 
-        cursor.execute("SELECT id FROM WordAndUrl")
+        cursor.execute("""
+            SELECT id 
+            FROM WordAndUrl""")
         ids = cursor.fetchall()
 
-        cursor.execute("SELECT timestamp FROM WordAndUrl")
+        cursor.execute("""
+            SELECT timestamp 
+            FROM WordAndUrl""")
         timestamp = cursor.fetchall()
         for row in timestamp:
             # Each row is a tuple, so extract the first element
@@ -46,18 +52,9 @@ class dataExtractor:
         
             # Now pass the individual timestamp string to getTimeType
             timestamp = self.m_dbHandler.get_time_type(timestamp_str)
-        # timestamp = db_handler.getTimeType(timestamp)
 
-        last_time_run = self.m_dbHandler.get_last_time_run()
-        # current_time = db_handler.getCurrentTime()
-
-        # if timestamp  > last_time_run:
         for url in urls:
             self._downloadArticlePage(url[0], cursor)
-            # cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
-            # print(f'url: {url} , {url[0]}')
-        # else:
-        #     print(f"    timestamp: {timestamp} \n last_time_run: {last_time_run}")
 
         conn.close()
 
@@ -69,15 +66,10 @@ class dataExtractor:
             search_words = json.load(json_file)
 
         for search_word in search_words:
-            cursor.execute(
-                """SELECT 
-                        filename, 
-                        tag_name, 
-                        sentence, 
-                        href, 
-                        timestamp
-                            FROM Sentences
-                            WHERE sentence LIKE ?""",
+            cursor.execute( """
+                SELECT filename, tag_name, sentence, href, timestamp
+                FROM Sentences
+                WHERE sentence LIKE ?""",
                 ("%" + search_word + "%",),
             )
 
@@ -85,15 +77,10 @@ class dataExtractor:
 
             for row in matching_rows:
                 pagename, tag_name, search_word, href, timestamp = row
-                cursor.execute(
-                    """INSERT INTO WordAndUrl (
-                                            pagename, 
-                                            tag_name, 
-                                            search_word, 
-                                            href, 
-                                            timestamp)
-                                VALUES (?, ?, ?, ?, ?)""",
-                    (pagename, tag_name, search_word, href,  timestamp),
+                cursor.execute( """
+                    INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
+                    VALUES (?, ?, ?, ?, ?)""",
+                                            (pagename, tag_name, search_word, href,  timestamp),
                 )
 
         conn.commit()
@@ -107,15 +94,10 @@ class dataExtractor:
             search_words = json.load(json_file)
 
         for search_word in search_words:
-            cursor.execute(
-                """SELECT 
-                    filename, 
-                    tag_name, 
-                    sentence, 
-                    href, 
-                    timestamp
-                            FROM Sentences
-                            WHERE sentence LIKE ?""",
+            cursor.execute( """
+                SELECT filename, tag_name, sentence, href, timestamp
+                FROM Sentences
+                WHERE sentence LIKE ?""",
                 ("%" + search_word + "%",),
             )
 
@@ -123,125 +105,25 @@ class dataExtractor:
 
             for row in matching_rows:
                 pagename, tag_name, search_word, href, timestamp = row
-                cursor.execute(
-                    """INSERT INTO WordAndUrl (
-                            pagename, 
-                            tag_name, 
-                            search_word, 
-                            href, 
-                            timestamp)
-                                VALUES (?, ?, ?, ?, ?)""",
-                    (pagename, tag_name, search_word, href, timestamp),
+                cursor.execute("""
+                    INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
+                    VALUES (?, ?, ?, ?, ?)""",
+                                            (pagename, tag_name, search_word, href, timestamp),
                 )
 
         conn.commit()
         conn.close()
 
-    def updateDatabaseCompany(self):
-        conn = sqlite3.connect("your_database.db")
-        cursor = conn.cursor()
-
-        folder_path = "htmlFiles/"
-
-        html_tags = self.m_jsonParser.htmlTags()
-        selected_words = self.m_jsonParser.companyNames()
-        previousInsertion = ""
-        previousHrefLink = ""
-
-        for filename in os.listdir(folder_path):
-            if filename.endswith(".html"):
-                file_path = os.path.join(folder_path, filename)
-
-                with open(file_path, "r", encoding="utf-8") as file:
-                    soup = BeautifulSoup(file, "html.parser")
-
-                for tag_name in html_tags:
-                    for tag in soup.find_all(tag_name):
-                        content = tag.text
-                        if any(word in content for word in selected_words):
-                            link_tag = tag.find_parent("a")
-                            href_link = ""
-                            if link_tag:
-                                href_link = link_tag.get("href")
-                                dot_index = filename.find(".")
-                                pageName = filename[:dot_index]
-                                if not href_link.startswith("https"):
-                                    href_link = self._getUrl(pageName, link_tag.get("href"))
-
-                            if href_link == previousHrefLink:
-                                href_link = ""
-                            else:
-                                previousHrefLink = href_link
-
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-                            if not (content == previousInsertion) and href_link != "":
-                                cursor.execute(
-                                    "INSERT INTO Sentences (filename, tag_name, sentence, href,  timestamp) VALUES (?, ?, ?, ?, ?)",
-                                    (filename, tag_name, content, href_link, timestamp),
-                                )
-                                previousInsertion = content
-        conn.commit()
-        conn.close()
-
     def updateDatabase(self):
-        conn = sqlite3.connect("your_database.db")
-        cursor = conn.cursor()
+        search_words = self.m_jsonParser.searchWords()
+        self._update_database_with_relevant_articles( search_words)
 
-        folder_path = "htmlFiles/"
+        search_words = self.m_jsonParser.companyNames()
+        self._update_database_with_relevant_articles( search_words)
 
-        selected_words = self.m_jsonParser.searchWords()
-        html_tags = self.m_jsonParser.htmlTags()
-        previousInsertion = ""
-        previousHrefLink = ""
+    def loop_all_articles(self, db_path, table):
+        directory_path = table                  # change when writing to database instad of file
 
-        for filename in os.listdir(folder_path):
-            if filename.endswith(".html"):
-                file_path = os.path.join(folder_path, filename)
-
-                with open(file_path, "r", encoding="utf-8") as file:
-                    soup = BeautifulSoup(file, "html.parser")
-
-                for tag_name in html_tags:
-                    for tag in soup.find_all(tag_name):
-                        content = tag.text
-                        if any(word in content for word in selected_words):
-                            link_tag = tag.find_parent("a")
-                            if link_tag:
-                                href_link = link_tag.get("href")
-                                dot_index = filename.find(".")
-                                pageName = filename[:dot_index]
-                                if not href_link.startswith("https"):
-                                    href_link = self._getUrl(pageName, link_tag.get("href"))
-
-                            if href_link == previousHrefLink:
-                                href_link = ""
-                            else:
-                                previousHrefLink = href_link
-
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-                            if not (content == previousInsertion) and href_link != "":
-                                cursor.execute(
-                                    """INSERT INTO Sentences (
-                                        filename, 
-                                        tag_name, 
-                                        sentence, 
-                                        href, 
-                                        timestamp) 
-                                        VALUES (?, ?, ?, ?, ?)""",
-                                    (pageName, tag_name, content, href_link,   timestamp),
-                                )
-                                previousInsertion = content
-        conn.commit()
-        conn.close()
-
-    def loop_all_articles(self):
-        # directory_path = "../articles/"
-        directory_path = "articles/"
-
-        # db_path = "../your_database.db"
-        db_path = "your_database.db"
         connection = sqlite3.connect(db_path)
 
         file_list = os.listdir(directory_path)
@@ -255,8 +137,6 @@ class dataExtractor:
     def create_markdown_overview(self, db_path, output_dir):
         last_time_run = self.m_dbHandler.get_last_time_run()
         last_time_run_int = self.m_dbHandler.get_last_time_run_int()
-        # Get the current date in 'YYYY-MM-DD' format
-        # last_date_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
         # Construct the markdown file path
         output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
@@ -266,9 +146,11 @@ class dataExtractor:
         cursor = conn.cursor()
 
         # Query the articles table
-        cursor.execute("""SELECT timestamp, title, subtitle, content, timestamp_int 
-                    FROM articles
-                    WHERE timestamp_int > ? """, (last_time_run_int,))
+        cursor.execute("""
+            SELECT timestamp, title, subtitle, content, timestamp_int 
+            FROM articles
+            WHERE timestamp_int > ? """, 
+            (last_time_run_int,))
         articles = cursor.fetchall()
         print(f"last_date_time {last_time_run_int}")
         # print(f"last_time_run {last_date_time}")
@@ -312,7 +194,54 @@ class dataExtractor:
         self.m_dbCleaner.reorganize_ids(self.m_dbHandler.database_path, "WordAndUrl")
         self.m_dbHandler.clean_last_update("WordAndUrl")
 
-    def _createFileToParse(self,name, url):
+    def _update_database_with_relevant_articles(self, search_words):
+        conn = sqlite3.connect("your_database.db")
+        cursor = conn.cursor()
+
+        folder_path = "htmlFiles/"
+
+        search_words = self.m_jsonParser.searchWords()
+        html_tags = self.m_jsonParser.htmlTags()
+        previousInsertion = ""
+        previousHrefLink = ""
+
+        for filename in os.listdir(folder_path):
+            if filename.endswith(".html"):
+                file_path = os.path.join(folder_path, filename)
+
+                with open(file_path, "r", encoding="utf-8") as file:
+                    soup = BeautifulSoup(file, "html.parser")
+
+                for tag_name in html_tags:
+                    for tag in soup.find_all(tag_name):
+                        content = tag.text
+                        if any(word in content for word in search_words):
+                            link_tag = tag.find_parent("a")
+                            if link_tag:
+                                href_link = link_tag.get("href")
+                                dot_index = filename.find(".")
+                                pageName = filename[:dot_index]
+                                if not href_link.startswith("https"):
+                                    href_link = self._getUrl(pageName, link_tag.get("href"))
+
+                            if href_link == previousHrefLink:
+                                href_link = ""
+                            else:
+                                previousHrefLink = href_link
+
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                            if not (content == previousInsertion) and href_link != "":
+                                cursor.execute("""
+                                    INSERT INTO Sentences ( filename, tag_name, sentence, href, timestamp) 
+                                    VALUES (?, ?, ?, ?, ?)""",
+                                                            (pageName, tag_name, content, href_link,   timestamp),
+                                )
+                                previousInsertion = content
+        conn.commit()
+        conn.close()
+
+    def _download_web_pages(self,name, url):
         filename = name + ".html"
         path = "htmlFiles/"
         path += filename
@@ -385,17 +314,10 @@ class dataExtractor:
         cursor = connection.cursor()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
-        cursor.execute(
-            """
-            INSERT INTO articles (
-                timestamp,
-                title, 
-                subtitle, 
-                content,
-                timestamp_int)
-            VALUES (?, ?, ?, ?, ?)
-        """,
-            ( timestamp, title, subtitle, text, timestamp_int),
+        cursor.execute( """
+            INSERT INTO articles(timestamp, title, subtitle, content, timestamp_int)
+            VALUES (?, ?, ?, ?, ?) """,
+                                (timestamp, title, subtitle, text, timestamp_int),
         )
         connection.commit()
 
@@ -428,6 +350,9 @@ class dataExtractor:
                 file_url.write(str(soup))
 
                 print(f"Webpage content saved to {output_file}")
-            cursor.execute("INSERT INTO WordAndUrl (local_article_file) VALUES (?)", ("int.html",))
+            cursor.execute("""
+                INSERT INTO WordAndUrl (local_article_file) 
+                VALUES (?)""", 
+                ("int.html",))
         else:
             print(f"Failed to retrieve webpage. Status code: {response.status_code}")
