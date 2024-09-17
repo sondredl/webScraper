@@ -28,8 +28,8 @@ class dataExtractor:
         for page in pageList:
             self._download_web_pages(page[0], page[1])
 
-    def download_all_article_pages(self):
-        conn = sqlite3.connect("your_database.db")
+    def download_all_article_pages(self, database_name):
+        conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -115,8 +115,8 @@ class dataExtractor:
         conn.close()
 
     def updateDatabase(self):
-        search_words = self.m_jsonParser.searchWords()
-        self._update_database_with_relevant_articles( search_words)
+        # search_words = self.m_jsonParser.searchWords()
+        # self._update_database_with_relevant_articles( search_words)
 
         search_words = self.m_jsonParser.companyNames()
         self._update_database_with_relevant_articles( search_words)
@@ -138,14 +138,11 @@ class dataExtractor:
         last_time_run = self.m_dbHandler.get_last_time_run()
         last_time_run_int = self.m_dbHandler.get_last_time_run_int()
         
-        # Construct the markdown file path
         output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
         
-        # Connect to the SQLite database
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Query the articles table
         cursor.execute("""
             SELECT timestamp, title, subtitle, content, timestamp_int 
             FROM articles
@@ -153,52 +150,44 @@ class dataExtractor:
             (last_time_run_int,))
         articles = cursor.fetchall()
         print(f"last_date_time {last_time_run_int}")
-        # print(f"last_time_run {last_date_time}")
         print(f"number of articles to be used {len(articles)}")
 
         # Determine the file mode ('a' for append, 'w' for write if new file)
         file_mode = 'a' if os.path.exists(output_file) else 'w'
         
-        # Open the markdown file in the appropriate mode
         with open(output_file, file_mode) as md_file:
-            # If appending, check if we need to add a header for a new file
-            if file_mode == 'w':
+            if file_mode == 'w': 
                 md_file.write("# Articles Overview\n\n")
 
-            # Loop through the articles and write each one to the markdown file
             for index, article in enumerate(articles):
                 timestamp, title, subtitle, text, timestamp_int = article
-                # if len(text) > 10 :
                 if len(text) > 10 and timestamp_int > last_time_run_int:
-                    # Write the article title and subtitle in markdown
                     md_file.write(f"## Article {index + 1}: {title}\n")
                     if subtitle:
                         md_file.write(f"### {subtitle}\n")
                     else:
                         md_file.write("### No subtitle\n")
                     
-                    # Write the article text (truncated if necessary)
-                    md_file.write(f"{text}...\n\n")  # Limit to first 500 characters
+                    md_file.write(f"{text}...\n\n") 
                     md_file.write("---\n\n")
                 else:
                     print("no new articles, will not make new file")
 
-        # Close the database connection
         conn.close()
         print(f"Markdown overview saved to {output_file}")
         self._format_markdown_file(output_file)
 
-    def cleanDuplicates(self):
-        self.m_dbHandler.cleanDuplicates("WordAndUrl", "href",  "timestamp")
-        self.m_dbHandler.cleanDuplicates("Articles",    "title", "timestamp")
-        self.m_dbCleaner.reorganize_ids(self.m_dbHandler.database_path, "WordAndUrl")
-        self.m_dbHandler.clean_last_update("WordAndUrl")
+    def cleanDuplicates(self, database_name):
+        self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
+        self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
+        self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
+        self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
 
     def _update_database_with_relevant_articles(self, search_words):
         conn = sqlite3.connect("your_database.db")
         cursor = conn.cursor()
 
-        folder_path = "htmlFiles/"
+        folder_path = "htmlFiles/" # set to table name after downloading to database instead of file
 
         search_words = self.m_jsonParser.searchWords()
         html_tags = self.m_jsonParser.htmlTags()
@@ -245,48 +234,37 @@ class dataExtractor:
         filename = name + ".html"
         path = "htmlFiles/"
         path += filename
+        print(f"\n downloading {url} to {path}")
         subprocess.run(["curl", "-L", "-o", path, url])
 
     def _format_markdown_file(self, file_path, max_width=120):
-        # Open the input markdown file and read its content
         with open(file_path, 'r') as md_file:
             content = md_file.read()
 
-        # Split the content into lines for more granular control
         lines = content.splitlines()
 
         formatted_lines = []
         for line in lines:
-            # Add a newline before `###` headers and list items that don't start with a `#`
             if line.__contains__('###') :
-                # Ensure the previous line isn't a header or list
                 if len(formatted_lines) > 0 and not formatted_lines[-1].startswith('#'):
                     formatted_lines.append('\n')  # Add a blank line
 
-            # Add the line itself to the formatted list
             formatted_lines.append(line)
 
-        # Join the lines back into paragraphs for wrapping
         content = '\n'.join(formatted_lines)
-
-        # Split the content into paragraphs by double newlines
         paragraphs = content.split('\n\n')
 
-        # Wrap each paragraph to the specified width
         formatted_paragraphs = []
         for paragraph in paragraphs:
-            # Handle code blocks and lists (you may want to skip wrapping these)
+            # Handle code blocks and lists 
             if paragraph.startswith("```") or paragraph.startswith("- ") or paragraph.startswith("* "):
                 formatted_paragraphs.append(paragraph)
             else:
-                # Wrap lines to the max_width
                 wrapped = textwrap.fill(paragraph, width=max_width)
                 formatted_paragraphs.append(wrapped)
 
-        # Join the formatted paragraphs back with double newlines
         formatted_content = '\n\n'.join(formatted_paragraphs)
 
-        # Write the formatted content back to the same file or a new file
         with open(file_path, 'w') as md_file:
             md_file.write(formatted_content)
 
@@ -305,9 +283,7 @@ class dataExtractor:
         subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
 
         text = "\n".join([p.text.strip() for p in soup.find_all("p")])
-
         self._insert_article(connection, title, subtitle, text)
-
         print(f"Article  {index} {title}' inserted into the database.")
 
     def _insert_article(self, connection, title, subtitle, text):
