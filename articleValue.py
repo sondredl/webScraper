@@ -3,7 +3,7 @@ from collections import Counter
 from src import jsonParser
 
 # Connect to the SQLite database
-conn = sqlite3.connect('your_database.db')
+conn = sqlite3.connect('temp.db')
 cursor = conn.cursor()
 
 # Fetch all text content from the articles table

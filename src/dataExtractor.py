@@ -52,14 +52,14 @@ class dataExtractor:
         
             # Now pass the individual timestamp string to getTimeType
             timestamp = self.m_dbHandler.get_time_type(timestamp_str)
-
-        for url in urls:
-            self._downloadArticlePage(url[0], cursor)
-
         conn.close()
 
-    def getWordAndUrl(self):
-        conn = sqlite3.connect("your_database.db")
+        for url in urls:
+            self._downloadArticlePage(database_name, url[0])
+
+
+    def getWordAndUrl(self, database_name):
+        conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
         with open("inputData/searchWords.json") as json_file:
@@ -74,20 +74,23 @@ class dataExtractor:
             )
 
             matching_rows = cursor.fetchall()
+            # print(matching_rows)
 
             for row in matching_rows:
+                # pagename = row
                 pagename, tag_name, search_word, href, timestamp = row
                 cursor.execute( """
-                    INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
+                    INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
                     VALUES (?, ?, ?, ?, ?)""",
-                                            (pagename, tag_name, search_word, href,  timestamp),
+                    (pagename, tag_name, search_word, href,  timestamp),
                 )
+                print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
 
         conn.commit()
         conn.close()
 
-    def getCompanyAndUrl(self):
-        conn = sqlite3.connect("your_database.db")
+    def getCompanyAndUrl(self, database_name):
+        conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
         with open("inputData/companies.json") as json_file:
@@ -114,12 +117,12 @@ class dataExtractor:
         conn.commit()
         conn.close()
 
-    def updateDatabase(self):
+    def updateDatabase(self, database_name):
         # search_words = self.m_jsonParser.searchWords()
         # self._update_database_with_relevant_articles( search_words)
 
         search_words = self.m_jsonParser.companyNames()
-        self._update_database_with_relevant_articles( search_words)
+        self._update_database_with_relevant_articles(database_name, search_words)
 
     def loop_all_articles(self, db_path, table):
         directory_path = table                  # change when writing to database instad of file
@@ -177,14 +180,14 @@ class dataExtractor:
         print(f"Markdown overview saved to {output_file}")
         self._format_markdown_file(output_file)
 
-    def cleanDuplicates(self, database_name):
-        self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
-        self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
-        self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
-        self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
+    # def cleanDuplicates(self, database_name):
+        # self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
+        # self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
+        # self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
+        # self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
 
-    def _update_database_with_relevant_articles(self, search_words):
-        conn = sqlite3.connect("your_database.db")
+    def _update_database_with_relevant_articles(self, database_name, search_words):
+        conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
         folder_path = "htmlFiles/" # set to table name after downloading to database instead of file
@@ -223,8 +226,9 @@ class dataExtractor:
                             if not (content == previousInsertion) and href_link != "":
                                 cursor.execute("""
                                     INSERT INTO Sentences ( filename, tag_name, sentence, href, timestamp) 
-                                    VALUES (?, ?, ?, ?, ?)""",
-                                                            (pageName, tag_name, content, href_link,   timestamp),
+                                    VALUES (?, ?, ?, ?, ?)
+                                """,
+                                (pageName, tag_name, content, href_link,   timestamp),
                                 )
                                 previousInsertion = content
         conn.commit()
@@ -312,23 +316,64 @@ class dataExtractor:
         counter[0] += 1
         return counter[0]
 
-    def _downloadArticlePage(self, url, cursor):
-        path = "articles/"
-        os.makedirs(path, exist_ok=True)
-        output_file = path + str(self._increment_counter()) + ".html"
+    # def _downloadArticlePage(self, url, cursor):
+    #     path = "articles/"
+    #     os.makedirs(path, exist_ok=True)
+    #     output_file = path + str(self._increment_counter()) + ".html"
 
+    #     response = requests.get(url)
+
+    #     if response.status_code == 200:
+    #         soup = BeautifulSoup(response.text, "html.parser")
+
+    #         with open(output_file, "w", encoding="utf-8") as file_url:
+    #             file_url.write(str(soup))
+
+    #             print(f"Webpage content saved to {output_file}")
+    #         cursor.execute("""
+    #             INSERT INTO WordAndUrl (local_article_file) 
+    #             VALUES (?)""", 
+    #             ("int.html",))
+    #     else:
+    #         print(f"Failed to retrieve webpage. Status code: {response.status_code}")
+
+    def _downloadArticlePage(self, database_name, url):
+        # Fetch the article page content
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
         response = requests.get(url)
 
         if response.status_code == 200:
+            # Parse the HTML using BeautifulSoup
             soup = BeautifulSoup(response.text, "html.parser")
 
-            with open(output_file, "w", encoding="utf-8") as file_url:
-                file_url.write(str(soup))
+            # Convert BeautifulSoup object to a string (raw HTML)
+            raw_html = str(soup)
 
-                print(f"Webpage content saved to {output_file}")
+            # Get the current timestamp in two formats: human-readable and integer (Unix timestamp)
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Human-readable timestamp
+            timestamp_int = int(time.time())  # Unix timestamp
+
+            # Assume search_words is some text or keywords extracted from the URL or HTML
+            search_words = self._extract_search_words(soup)  # You should define this method for extracting search words
+
+            # Insert the raw HTML into the 'raw_articles' table
             cursor.execute("""
-                INSERT INTO WordAndUrl (local_article_file) 
-                VALUES (?)""", 
-                ("int.html",))
+                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words) 
+                VALUES (?, ?, ?, ?)
+            """, (timestamp, timestamp_int, raw_html, search_words))
+
+            print(f"Webpage content saved to the database in 'raw_articles'.")
         else:
             print(f"Failed to retrieve webpage. Status code: {response.status_code}")
+        conn.close()
+
+    def _extract_search_words(self, soup):
+        # Example: extract text from <title> and <meta name="keywords">
+        title = soup.title.string if soup.title else ""
+        meta_keywords = soup.find("meta", {"name": "keywords"})
+        keywords = meta_keywords["content"] if meta_keywords else ""
+
+        # Combine title and keywords or any other search words logic
+        search_words = title + " " + keywords
+        return search_words
