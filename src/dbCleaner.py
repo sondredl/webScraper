@@ -5,7 +5,7 @@ import shutil
 
 class databaseCleaner:
     def reorganize_ids(self, database_path, table_name):
-        database_path = "your_database.db"
+        # database_path = "your_database.db"
         connection = sqlite3.connect(database_path)
         cursor = connection.cursor()
 
@@ -40,7 +40,7 @@ class databaseCleaner:
             connection.close()
 
     def evaluateArticlesTable(self, last_date_time):
-        db_path = "your_database.db"
+        db_path = "temp.db"
         connection = sqlite3.connect(db_path)
 
         cursor = connection.cursor()

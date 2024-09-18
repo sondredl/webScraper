@@ -13,7 +13,7 @@ from src.databaseHandler  import DbHandler
 
 
 def createArticlesTable():
-    conn = sqlite3.connect("your_database.db")
+    conn = sqlite3.connect("temp.db")
     cursor = conn.cursor()
 
     # create_articles_table(connection)
@@ -48,7 +48,7 @@ def createContentFiles():
 
 
 def compareTimestamps(db_handler):
-    conn = sqlite3.connect("your_database.db")
+    conn = sqlite3.connect("temp.db")
     cursor = conn.cursor()
 
     cursor.execute("SELECT href FROM WordAndUrl")
@@ -63,7 +63,7 @@ def compareTimestamps(db_handler):
     new_word_and_url_rows = 0
     last_time_run : datetime.datetime
 
-    database_path = 'your_database.db'
+    database_path = 'temp.db'
     table_name = 'WordAndUrl'
     column_name = 'timestamp_int'
     column_type = 'INTEGER'  

@@ -11,12 +11,13 @@ class DbHandler:
         self.last_time_run = datetime.min
         self.last_time_run_int : int
         self.last_time_run_int = int(time.time())
-        # self.database_path = "your_database.db"
+
         self.create_database_and_tables("temp.db")
     
     def create_database_and_tables(self, database_name):
         self._create_database_if_not_exists(database_name)
         self._create_articles_table(database_name)
+        self._create_raw_articles_table(database_name)
         self._create_sentences_table(database_name)
         self._create_word_and_url_table(database_name)
         self._create_last_checked_table(database_name)
@@ -69,6 +70,26 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, table_name, column_4, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_5, text_type_not_null)
         self._create_column_if_not_exists(database_name, table_name, column_6, text_type)
+    def _create_raw_articles_table(self, database_name):
+        table_name = "raw_articles"
+
+        column_0 = "id"
+        primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"
+
+        column_1 = "timestamp"
+        column_2 = "timestamp_int"
+        column_3 = "raw_html"
+        column_4 = "search_words"
+
+        integer_type = "INTEGER"
+        text_type = "TEXT"
+        text_type_not_null = "TEXT NOT NULL"
+
+        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_column_if_not_exists(database_name, table_name, column_1, text_type)
+        self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
+        self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
+        self._create_column_if_not_exists(database_name, table_name, column_4, text_type)
     def _create_last_checked_table(self, database_name):
         table_name = "LastCheckedEntry"
 
@@ -297,7 +318,5 @@ class DbHandler:
 
     def doesColumnExist(self, cursor, table_name, column_name):
         cursor.execute(f"PRAGMA table_info({table_name})")
-
         columns = cursor.fetchall()
-
         return any(column[1] == column_name for column in columns)
