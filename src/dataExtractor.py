@@ -84,7 +84,7 @@ class dataExtractor:
                     VALUES (?, ?, ?, ?, ?)""",
                     (pagename, tag_name, search_word, href,  timestamp),
                 )
-                print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
+                # print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
 
         conn.commit()
         conn.close()
@@ -181,11 +181,11 @@ class dataExtractor:
         print(f"Markdown overview saved to {output_file}")
         self._format_markdown_file(output_file)
 
-    # def cleanDuplicates(self, database_name):
-        # self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
-        # self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
-        # self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
-        # self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
+    def cleanDuplicates(self, database_name):
+        self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
+        self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
+        self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
+        self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
 
     def _update_database_with_relevant_articles(self, database_name, search_words):
         conn = sqlite3.connect(database_name)
@@ -317,27 +317,6 @@ class dataExtractor:
         counter[0] += 1
         return counter[0]
 
-    # def _downloadArticlePage(self, url, cursor):
-    #     path = "articles/"
-    #     os.makedirs(path, exist_ok=True)
-    #     output_file = path + str(self._increment_counter()) + ".html"
-
-    #     response = requests.get(url)
-
-    #     if response.status_code == 200:
-    #         soup = BeautifulSoup(response.text, "html.parser")
-
-    #         with open(output_file, "w", encoding="utf-8") as file_url:
-    #             file_url.write(str(soup))
-
-    #             print(f"Webpage content saved to {output_file}")
-    #         cursor.execute("""
-    #             INSERT INTO WordAndUrl (local_article_file) 
-    #             VALUES (?)""", 
-    #             ("int.html",))
-    #     else:
-    #         print(f"Failed to retrieve webpage. Status code: {response.status_code}")
-
     def _downloadArticlePage(self, database_name, url):
         # Fetch the article page content
         conn = sqlite3.connect(database_name)
@@ -360,11 +339,11 @@ class dataExtractor:
 
             # Insert the raw HTML into the 'raw_articles' table
             cursor.execute("""
-                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words) 
-                VALUES (?, ?, ?, ?)
-            """, (timestamp, timestamp_int, raw_html, search_words))
+                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words, url) 
+                VALUES (?, ?, ?, ?, ?)
+            """, (timestamp, timestamp_int, raw_html, search_words, url))
 
-            print(f"Webpage content saved to the database in 'raw_articles'.")
+            print(f"'raw_articles' inserted : {url}")
         else:
             print(f"Failed to retrieve webpage. Status code: {response.status_code}")
         conn.commit()

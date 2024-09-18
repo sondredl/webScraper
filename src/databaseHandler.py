@@ -80,6 +80,7 @@ class DbHandler:
         column_2 = "timestamp_int"
         column_3 = "raw_html"
         column_4 = "search_words"
+        column_5 = "url"
 
         integer_type = "INTEGER"
         text_type = "TEXT"
@@ -90,6 +91,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
         self._create_column_if_not_exists(database_name, table_name, column_4, text_type)
+        self._create_column_if_not_exists(database_name, table_name, column_5, text_type)
     def _create_last_checked_table(self, database_name):
         table_name = "LastCheckedEntry"
 
@@ -136,6 +138,7 @@ class DbHandler:
     def _create_database_if_not_exists(self, database_path):
         conn = sqlite3.connect(database_path)
         print(f"Database '{database_path}' has been created or already exists.")
+        conn.commit()
         conn.close()
     def _create_table_if_not_exists(self, database_path, table_name, column_0, primary_key):
         conn = sqlite3.connect(database_path)
