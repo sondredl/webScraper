@@ -91,7 +91,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
         self._create_column_if_not_exists(database_name, table_name, column_4, text_type)
-        self._create_column_if_not_exists(database_name, table_name, column_5, text_type)
+        self._create_column_if_not_exists(database_name, table_name, column_5, text_type_not_null)
     def _create_last_checked_table(self, database_name):
         table_name = "LastCheckedEntry"
 
@@ -237,6 +237,34 @@ class DbHandler:
         _cleanDuplicates.start()
         _cleanDuplicates.join()
         print(f"removed duplicates in {table}")
+
+    def clean_duplicates_in_column(self, database_name, table_name, column_name):
+        # Connect to the database
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
+
+        try:
+            # Step 1: Identify and remove duplicates
+            # This SQL finds duplicate rows based on the column_name, keeping only the row with the lowest rowid
+            cursor.execute(f"""
+                DELETE FROM {table_name}
+                WHERE rowid NOT IN (
+                    SELECT MIN(rowid)
+                    FROM {table_name}
+                    GROUP BY {column_name}
+                )
+            """)
+
+            # Commit the changes
+            conn.commit()
+            print(f"Duplicates in column '{column_name}' of table '{table_name}' have been removed.")
+
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+        finally:
+            # Close the connection
+            conn.close()
+
     def clean_last_update(self, database_name, table_name):
         connection = sqlite3.connect(database_name)
         self._insert_initial_record(connection, table_name)

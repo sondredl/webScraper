@@ -46,6 +46,7 @@ class dataExtractor:
             SELECT timestamp 
             FROM WordAndUrl""")
         timestamp = cursor.fetchall()
+
         for row in timestamp:
             # Each row is a tuple, so extract the first element
             timestamp_str = row[0]
@@ -133,7 +134,8 @@ class dataExtractor:
 
         for file_name in file_list:
             file_name_path = os.path.join(directory_path, file_name)
-            self._get_article_from_file(file_name_path, connection, file_name[0])
+            # self._get_article_from_file(file_name_path, connection, file_name[0])
+            self._get_article_from_db(file_name_path, connection, file_name[0])
 
         connection.close()
 
@@ -182,8 +184,12 @@ class dataExtractor:
         self._format_markdown_file(output_file)
 
     def cleanDuplicates(self, database_name):
-        self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
-        self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
+        # self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "WordAndUrl", "href")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "Sentences", "href")
+        # self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "raw_articles", "url")
+        # self.m_dbHandler.clean_duplicates_in_column(database_name, "articles", "href")
         self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
         self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
 
@@ -210,6 +216,7 @@ class dataExtractor:
                         content = tag.text
                         if any(word in content for word in search_words):
                             link_tag = tag.find_parent("a")
+                            href_link = ""
                             if link_tag:
                                 href_link = link_tag.get("href")
                                 dot_index = filename.find(".")
@@ -275,11 +282,80 @@ class dataExtractor:
 
         print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
 
+    def _get_article_from_db(self, url, connection, index):
+    # Fetch the raw HTML content from the database
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT timestamp, timestamp_int, raw_html, url 
+            FROM articles_raw
+            WHERE url = ?
+        """, (url,))
+
+        result = cursor.fetchone()
+        
+        if result:
+            timestamp, timestamp_int, raw_html, fetched_url = result
+            
+            # Parse the HTML using BeautifulSoup
+            soup = BeautifulSoup(raw_html, "html.parser")
+
+            # Example processing of matching rows (this part depends on what you're doing with cursor.fetchall())
+            # Assuming you want to retrieve some related rows (e.g., from WordAndUrl table):
+            cursor.execute("""
+                SELECT pagename, tag_name, search_word, href, timestamp 
+                FROM WordAndUrl
+            """)
+            matching_rows = cursor.fetchall()
+
+            for row in matching_rows:
+                pagename, tag_name, search_word, href, timestamp = row
+                cursor.execute("""
+                    INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (pagename, tag_name, search_word, href, timestamp))
+
+            # Extract title and subtitle
+            title_tag = soup.title
+            subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
+
+            title = title_tag.text.strip() if title_tag else "No Title Found"
+            subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
+
+            # Extract the article's text
+            text = "\n".join([p.text.strip() for p in soup.find_all("p")])
+
+            # Insert article data into the relevant table
+            self._insert_article(connection, title, subtitle, text)
+            print(f"Article {index} '{title}' inserted into the database.")
+
+            # Commit the changes
+            connection.commit()
+        else:
+            print(f"No article found for URL: {url}")
+        
+        # Close the connection
+        connection.close()
+
+
     def _get_article_from_file(self, filename, connection, index):
         with open(filename, "r", encoding="utf-8") as file:
             html_content = file.read()
 
+        cursor = connection.cursor()
+
+        matching_rows = cursor.fetchall()
+        
         soup = BeautifulSoup(html_content, "html.parser")
+
+        for row in matching_rows:
+            pagename, tag_name, search_word, href, timestamp = row
+            cursor.execute("""
+                INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
+                VALUES (?, ?, ?, ?, ?)""",
+                (pagename, tag_name, search_word, href, timestamp),
+            )
+
 
         title_tag = soup.title
         subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
@@ -291,16 +367,20 @@ class dataExtractor:
         self._insert_article(connection, title, subtitle, text)
         print(f"Article  {index} {title}' inserted into the database.")
 
+        connection.commit()
+        connection.close()
+
     def _insert_article(self, connection, title, subtitle, text):
         cursor = connection.cursor()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
         cursor.execute( """
-            INSERT INTO articles(timestamp, title, subtitle, content, timestamp_int)
+            INSERT INTO Articles(timestamp, title, subtitle, content, timestamp_int)
             VALUES (?, ?, ?, ?, ?) """,
                                 (timestamp, title, subtitle, text, timestamp_int),
         )
         connection.commit()
+        connection.close()
 
     def _getUrl(self, pageName, href):
         web_pages = self.m_jsonParser.webPages()
