@@ -92,6 +92,16 @@ class databaseCleaner:
                 """, (searchWordsInArticle, article_id)
             )
 
+    def delete_all_content_in_table(self, database_name, table_name):
+        connection = sqlite3.connect(database_name)
+        cursor = connection.cursor()
+
+        cursor.execute(f"DELETE FROM {table_name}")
+
+        connection.commit()
+        connection.close()
+
+
     def delete_folder_contents(self, folder_path):
         # Check if the folder exists
         if os.path.exists(folder_path):

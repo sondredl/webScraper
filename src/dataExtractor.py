@@ -125,19 +125,35 @@ class dataExtractor:
         search_words = self.m_jsonParser.companyNames()
         self._update_database_with_relevant_articles(database_name, search_words)
 
-    def loop_all_articles(self, db_path, table):
-        directory_path = table                  # change when writing to database instad of file
+    def loop_all_articles(self, database_name, table_name):
+        # try:
+        # Step 1: Select all rows from the table
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM {table_name}")
+        
+        # Step 2: Fetch all results
+        rows = cursor.fetchall()
+        conn.close()
+        
+        # Print or return the rows
+        for row in rows:
+            # print(row)
+            self._get_article_from_db(database_name, table_name, row , row[0])
 
-        connection = sqlite3.connect(db_path)
+        try:
+            self.m_dbCleaner.delete_all_content_in_table(database_name, table_name)
+            print(f"deleted content in {table_name}")
+        except:
+            print(f"failed to delete content in {table_name}")
+        finally:
+            print("successfull insertion in Articles table")
+            return rows  # Optionally return the rows if needed
 
-        file_list = os.listdir(directory_path)
-
-        for file_name in file_list:
-            file_name_path = os.path.join(directory_path, file_name)
-            # self._get_article_from_file(file_name_path, connection, file_name[0])
-            self._get_article_from_db(file_name_path, connection, file_name[0])
-
-        connection.close()
+        # except sqlite3.Error as e:
+        #     print(f"An error occurred: {e}")
+        #     return None
+        # finally:
 
     def create_markdown_overview(self, db_path, output_dir):
         last_time_run = self.m_dbHandler.get_last_time_run()
@@ -282,60 +298,45 @@ class dataExtractor:
 
         print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
 
-    def _get_article_from_db(self, url, connection, index):
-    # Fetch the raw HTML content from the database
-        cursor = connection.cursor()
-
-        cursor.execute("""
-            SELECT timestamp, timestamp_int, raw_html, url 
-            FROM articles_raw
-            WHERE url = ?
-        """, (url,))
-
-        result = cursor.fetchone()
+    def _get_article_from_db(self,database_name, table_name, table_row_content, index):
+        raw_html = table_row_content[3] # index of column with raw html
         
-        if result:
-            timestamp, timestamp_int, raw_html, fetched_url = result
-            
-            # Parse the HTML using BeautifulSoup
-            soup = BeautifulSoup(raw_html, "html.parser")
+        # Parse the HTML using BeautifulSoup
+        soup = BeautifulSoup(raw_html, "html.parser")
 
-            # Example processing of matching rows (this part depends on what you're doing with cursor.fetchall())
-            # Assuming you want to retrieve some related rows (e.g., from WordAndUrl table):
-            cursor.execute("""
-                SELECT pagename, tag_name, search_word, href, timestamp 
-                FROM WordAndUrl
-            """)
-            matching_rows = cursor.fetchall()
+        # Extract title and subtitle
+        title_tag = soup.title
+        subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
 
-            for row in matching_rows:
-                pagename, tag_name, search_word, href, timestamp = row
-                cursor.execute("""
-                    INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (pagename, tag_name, search_word, href, timestamp))
+        title = title_tag.text.strip() if title_tag else "No Title Found"
+        subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
 
-            # Extract title and subtitle
-            title_tag = soup.title
-            subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
+        # Extract the article's text
+        text = "\n".join([p.text.strip() for p in soup.find_all("p")])
 
-            title = title_tag.text.strip() if title_tag else "No Title Found"
-            subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
+        # Insert article data into the relevant table
+        connection = sqlite3.connect(database_name)
+        cursor = connection.cursor()
+        cursor = connection.cursor()
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_int = int(time.time())
+        cursor.execute( """
+            INSERT INTO Articles(timestamp, timestamp_int, title, subtitle, content)
+            VALUES (?, ?, ?, ?, ?) """,
+                                (timestamp, timestamp_int, title, subtitle, text),
+        )
+        connection.commit()
+        connection.close()
+        # self._insert_article(database_name , table_name, table_row_content,  title, subtitle, text)
+        print(f"Article {index} '{title}' inserted into the database.")
 
-            # Extract the article's text
-            text = "\n".join([p.text.strip() for p in soup.find_all("p")])
-
-            # Insert article data into the relevant table
-            self._insert_article(connection, title, subtitle, text)
-            print(f"Article {index} '{title}' inserted into the database.")
-
-            # Commit the changes
-            connection.commit()
-        else:
-            print(f"No article found for URL: {url}")
+        # Commit the changes
+        # connection.commit()
+        # else:
+        #     print(f"No article found for URL: {url}")
         
         # Close the connection
-        connection.close()
+        # connection.close()
 
 
     def _get_article_from_file(self, filename, connection, index):
@@ -370,7 +371,9 @@ class dataExtractor:
         connection.commit()
         connection.close()
 
-    def _insert_article(self, connection, title, subtitle, text):
+    def _insert_article(self, database_name, title, subtitle, text):
+        connection = sqlite3.connect(database_name)
+        cursor = connection.cursor()
         cursor = connection.cursor()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
