@@ -46,6 +46,7 @@ class dataExtractor:
             SELECT timestamp 
             FROM WordAndUrl""")
         timestamp = cursor.fetchall()
+
         for row in timestamp:
             # Each row is a tuple, so extract the first element
             timestamp_str = row[0]
@@ -84,7 +85,7 @@ class dataExtractor:
                     VALUES (?, ?, ?, ?, ?)""",
                     (pagename, tag_name, search_word, href,  timestamp),
                 )
-                print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
+                # print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
 
         conn.commit()
         conn.close()
@@ -124,22 +125,41 @@ class dataExtractor:
         search_words = self.m_jsonParser.companyNames()
         self._update_database_with_relevant_articles(database_name, search_words)
 
-    def loop_all_articles(self, db_path, table):
-        directory_path = table                  # change when writing to database instad of file
+    def loop_all_articles(self, database_name, table_name):
+        # try:
+        # Step 1: Select all rows from the table
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM {table_name}")
+        
+        # Step 2: Fetch all results
+        rows = cursor.fetchall()
+        conn.close()
+        
+        # Print or return the rows
+        for row in rows:
+            # print(row)
+            self._get_article_from_db(database_name, table_name, row , row[0])
 
-        connection = sqlite3.connect(db_path)
+        try:
+            self.m_dbCleaner.delete_all_content_in_table(database_name, table_name)
+            print(f"deleted content in {table_name}")
+        except:
+            print(f"failed to delete content in {table_name}")
+        finally:
+            print("successfull insertion in Articles table")
+            return rows  # Optionally return the rows if needed
 
-        file_list = os.listdir(directory_path)
-
-        for file_name in file_list:
-            file_name_path = os.path.join(directory_path, file_name)
-            self._get_article_from_file(file_name_path, connection, file_name[0])
-
-        connection.close()
+        # except sqlite3.Error as e:
+        #     print(f"An error occurred: {e}")
+        #     return None
+        # finally:
 
     def create_markdown_overview(self, db_path, output_dir):
-        last_time_run = self.m_dbHandler.get_last_time_run()
-        last_time_run_int = self.m_dbHandler.get_last_time_run_int()
+        last_time_run = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        last_time_run_int = int(time.time())
+        # last_time_run = self.m_dbHandler.get_last_time_run()
+        # last_time_run_int = self.m_dbHandler.get_last_time_run_int()
         
         output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
         
@@ -147,7 +167,7 @@ class dataExtractor:
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT timestamp, title, subtitle, content, timestamp_int 
+            SELECT timestamp, timestamp_int, title, subtitle, content
             FROM articles
             WHERE timestamp_int > ? """, 
             (last_time_run_int,))
@@ -181,11 +201,15 @@ class dataExtractor:
         print(f"Markdown overview saved to {output_file}")
         self._format_markdown_file(output_file)
 
-    # def cleanDuplicates(self, database_name):
+    def cleanDuplicates(self, database_name):
         # self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "WordAndUrl", "href")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "Sentences", "href")
         # self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
-        # self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
-        # self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "raw_articles", "url")
+        # self.m_dbHandler.clean_duplicates_in_column(database_name, "articles", "href")
+        self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
+        self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
 
     def _update_database_with_relevant_articles(self, database_name, search_words):
         conn = sqlite3.connect(database_name)
@@ -210,6 +234,7 @@ class dataExtractor:
                         content = tag.text
                         if any(word in content for word in search_words):
                             link_tag = tag.find_parent("a")
+                            href_link = ""
                             if link_tag:
                                 href_link = link_tag.get("href")
                                 dot_index = filename.find(".")
@@ -275,11 +300,65 @@ class dataExtractor:
 
         print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
 
+    def _get_article_from_db(self,database_name, table_name, table_row_content, index):
+        raw_html = table_row_content[3] # index of column with raw html
+        
+        # Parse the HTML using BeautifulSoup
+        soup = BeautifulSoup(raw_html, "html.parser")
+
+        # Extract title and subtitle
+        title_tag = soup.title
+        subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
+
+        title = title_tag.text.strip() if title_tag else "No Title Found"
+        subtitle = subtitle_tag.text.strip() if subtitle_tag else "No Subtitle Found"
+
+        # Extract the article's text
+        text = "\n".join([p.text.strip() for p in soup.find_all("p")])
+
+        # Insert article data into the relevant table
+        connection = sqlite3.connect(database_name)
+        cursor = connection.cursor()
+        cursor = connection.cursor()
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_int = int(time.time())
+        cursor.execute( """
+            INSERT INTO Articles(timestamp, timestamp_int, title, subtitle, content)
+            VALUES (?, ?, ?, ?, ?) """,
+                                (timestamp, timestamp_int, title, subtitle, text),
+        )
+        connection.commit()
+        connection.close()
+        # self._insert_article(database_name , table_name, table_row_content,  title, subtitle, text)
+        print(f"Article {index} '{title}' inserted into the database.")
+
+        # Commit the changes
+        # connection.commit()
+        # else:
+        #     print(f"No article found for URL: {url}")
+        
+        # Close the connection
+        # connection.close()
+
+
     def _get_article_from_file(self, filename, connection, index):
         with open(filename, "r", encoding="utf-8") as file:
             html_content = file.read()
 
+        cursor = connection.cursor()
+
+        matching_rows = cursor.fetchall()
+        
         soup = BeautifulSoup(html_content, "html.parser")
+
+        for row in matching_rows:
+            pagename, tag_name, search_word, href, timestamp = row
+            cursor.execute("""
+                INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
+                VALUES (?, ?, ?, ?, ?)""",
+                (pagename, tag_name, search_word, href, timestamp),
+            )
+
 
         title_tag = soup.title
         subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
@@ -291,16 +370,22 @@ class dataExtractor:
         self._insert_article(connection, title, subtitle, text)
         print(f"Article  {index} {title}' inserted into the database.")
 
-    def _insert_article(self, connection, title, subtitle, text):
+        connection.commit()
+        connection.close()
+
+    def _insert_article(self, database_name, title, subtitle, text):
+        connection = sqlite3.connect(database_name)
+        cursor = connection.cursor()
         cursor = connection.cursor()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
         cursor.execute( """
-            INSERT INTO articles(timestamp, title, subtitle, content, timestamp_int)
+            INSERT INTO Articles(timestamp, title, subtitle, content, timestamp_int)
             VALUES (?, ?, ?, ?, ?) """,
                                 (timestamp, title, subtitle, text, timestamp_int),
         )
         connection.commit()
+        connection.close()
 
     def _getUrl(self, pageName, href):
         web_pages = self.m_jsonParser.webPages()
@@ -316,27 +401,6 @@ class dataExtractor:
     def _increment_counter(self, counter=[0]):
         counter[0] += 1
         return counter[0]
-
-    # def _downloadArticlePage(self, url, cursor):
-    #     path = "articles/"
-    #     os.makedirs(path, exist_ok=True)
-    #     output_file = path + str(self._increment_counter()) + ".html"
-
-    #     response = requests.get(url)
-
-    #     if response.status_code == 200:
-    #         soup = BeautifulSoup(response.text, "html.parser")
-
-    #         with open(output_file, "w", encoding="utf-8") as file_url:
-    #             file_url.write(str(soup))
-
-    #             print(f"Webpage content saved to {output_file}")
-    #         cursor.execute("""
-    #             INSERT INTO WordAndUrl (local_article_file) 
-    #             VALUES (?)""", 
-    #             ("int.html",))
-    #     else:
-    #         print(f"Failed to retrieve webpage. Status code: {response.status_code}")
 
     def _downloadArticlePage(self, database_name, url):
         # Fetch the article page content
@@ -360,11 +424,11 @@ class dataExtractor:
 
             # Insert the raw HTML into the 'raw_articles' table
             cursor.execute("""
-                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words) 
-                VALUES (?, ?, ?, ?)
-            """, (timestamp, timestamp_int, raw_html, search_words))
+                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words, url) 
+                VALUES (?, ?, ?, ?, ?)
+            """, (timestamp, timestamp_int, raw_html, search_words, url))
 
-            print(f"Webpage content saved to the database in 'raw_articles'.")
+            print(f"'raw_articles' inserted : {url}")
         else:
             print(f"Failed to retrieve webpage. Status code: {response.status_code}")
         conn.commit()
