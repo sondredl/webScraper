@@ -156,8 +156,10 @@ class dataExtractor:
         # finally:
 
     def create_markdown_overview(self, db_path, output_dir):
-        last_time_run = self.m_dbHandler.get_last_time_run()
-        last_time_run_int = self.m_dbHandler.get_last_time_run_int()
+        last_time_run = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        last_time_run_int = int(time.time())
+        # last_time_run = self.m_dbHandler.get_last_time_run()
+        # last_time_run_int = self.m_dbHandler.get_last_time_run_int()
         
         output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
         
@@ -165,7 +167,7 @@ class dataExtractor:
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT timestamp, title, subtitle, content, timestamp_int 
+            SELECT timestamp, timestamp_int, title, subtitle, content
             FROM articles
             WHERE timestamp_int > ? """, 
             (last_time_run_int,))
