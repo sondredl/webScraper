@@ -302,6 +302,7 @@ class dataExtractor:
 
     def _get_article_from_db(self,database_name, table_name, table_row_content, index):
         raw_html = table_row_content[3] # index of column with raw html
+        url = table_row_content[5]
         
         # Parse the HTML using BeautifulSoup
         soup = BeautifulSoup(raw_html, "html.parser")
@@ -323,9 +324,9 @@ class dataExtractor:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
         cursor.execute( """
-            INSERT INTO Articles(timestamp, timestamp_int, title, subtitle, content)
-            VALUES (?, ?, ?, ?, ?) """,
-                                (timestamp, timestamp_int, title, subtitle, text),
+            INSERT INTO Articles(timestamp, timestamp_int, title, subtitle, content, url)
+            VALUES (?, ?, ?, ?, ?, ?) """,
+                                (timestamp, timestamp_int, title, subtitle, text, url),
         )
         connection.commit()
         connection.close()
