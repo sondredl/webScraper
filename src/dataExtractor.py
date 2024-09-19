@@ -19,6 +19,8 @@ class dataExtractor:
         self.create_folder_if_none_exists("htmlFiles")
         self.create_folder_if_none_exists("markdown")
         self.create_folder_if_none_exists("articles")
+        self.last_run_y_m_d : str
+        self.last_run_int : int = 0 
     
     def create_folder_if_none_exists(self, folderName):
         subprocess.run(["mkdir", "folderName"])
@@ -141,6 +143,8 @@ class dataExtractor:
             # print(row)
             self._get_article_from_db(database_name, table_name, row , row[0])
 
+        self.last_run_y_m_d = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # self.last_run_int = int(time.time())
         try:
             self.m_dbCleaner.delete_all_content_in_table(database_name, table_name)
             print(f"deleted content in {table_name}")
@@ -156,12 +160,12 @@ class dataExtractor:
         # finally:
 
     def create_markdown_overview(self, db_path, output_dir):
-        last_time_run = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        last_time_run_int = int(time.time())
+        # last_time_run = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # last_time_run_int = int(time.time())
         # last_time_run = self.m_dbHandler.get_last_time_run()
         # last_time_run_int = self.m_dbHandler.get_last_time_run_int()
         
-        output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
+        output_file = os.path.join(output_dir, f"articles_overview_{self.last_run_y_m_d}.md")
         
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
@@ -170,9 +174,10 @@ class dataExtractor:
             SELECT timestamp, timestamp_int, title, subtitle, content
             FROM articles
             WHERE timestamp_int > ? """, 
-            (last_time_run_int,))
+            (self.last_run_int,))
         articles = cursor.fetchall()
-        print(f"last_date_time {last_time_run_int}")
+        print(f"last_date_time {self.last_run_y_m_d}")
+        print(f"last_date_time {self.last_run_int}")
         print(f"number of articles to be used {len(articles)}")
 
         # Determine the file mode ('a' for append, 'w' for write if new file)
@@ -184,7 +189,8 @@ class dataExtractor:
 
             for index, article in enumerate(articles):
                 timestamp, title, subtitle, text, timestamp_int = article
-                if len(text) > 10 and timestamp_int > last_time_run_int:
+                timestamp_int : int = article[2]
+                if len(text) > 10 and timestamp_int > self.last_run_int:
                     md_file.write(f"## Article {index + 1}: {title}\n")
                     if subtitle:
                         md_file.write(f"### {subtitle}\n")

@@ -16,7 +16,7 @@ def main():
         data_Extractor.cleanDuplicates("temp.db")
         data_Extractor.download_all_article_pages("temp.db") # downloads articles from word_and_url to file
         data_Extractor.loop_all_articles("temp.db", "raw_articles")
-        data_Extractor.create_markdown_overview("temp.db", "markdown")
+        # data_Extractor.create_markdown_overview("temp.db", "markdown")
         data_Extractor.m_dbCleaner.delete_folder_contents("articles")
         data_Extractor.m_dbCleaner.delete_folder_contents("htmlFiles")
         # data_Extractor.m_dbCleaner.set_last_time_run()
