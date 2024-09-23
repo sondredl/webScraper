@@ -60,7 +60,6 @@ class dataExtractor:
         for url in urls:
             self._downloadArticlePage(database_name, url[0])
 
-
     def getWordAndUrl(self, database_name):
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
@@ -128,23 +127,18 @@ class dataExtractor:
         self._update_database_with_relevant_articles(database_name, search_words)
 
     def loop_all_articles(self, database_name, table_name):
-        # try:
-        # Step 1: Select all rows from the table
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
         
-        # Step 2: Fetch all results
         rows = cursor.fetchall()
         conn.close()
         
-        # Print or return the rows
         for row in rows:
-            # print(row)
             self._get_article_from_db(database_name, table_name, row , row[0])
 
         self.last_run_y_m_d = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        # self.last_run_int = int(time.time())
+        self.last_run_int = int(time.time())
         try:
             self.m_dbCleaner.delete_all_content_in_table(database_name, table_name)
             print(f"deleted content in {table_name}")
