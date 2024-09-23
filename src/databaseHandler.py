@@ -58,6 +58,7 @@ class DbHandler:
         column_4 = "subtitle"
         column_5 = "content"
         column_6 = "search_words"
+        column_7 = "url"
 
         integer_type = "INTEGER"
         text_type = "TEXT"
@@ -70,6 +71,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, table_name, column_4, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_5, text_type_not_null)
         self._create_column_if_not_exists(database_name, table_name, column_6, text_type)
+        self._create_column_if_not_exists(database_name, table_name, column_7, text_type)
     def _create_raw_articles_table(self, database_name):
         table_name = "raw_articles"
 
