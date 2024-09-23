@@ -83,8 +83,9 @@ def get_content_element_from_file(file_name, element_type, element_class):
 
         # Print the nested element if found
         if nested_element:
-            nested_content = nested_element.get_text(strip=True)  # Get text content of the nested element
-            print(nested_content)
+            for nested_conten in nested_element:
+                nested_content = nested_element.get_text(strip=True)  # Get text content of the nested element
+                print(nested_content)
         else:
             print(f"No nested element <{nested_element_type}> with class '{nested_element_class}' found.")
     else:
