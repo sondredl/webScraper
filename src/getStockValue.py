@@ -42,37 +42,85 @@ class aksjer24:
                 soup = BeautifulSoup(file, "html.parser")
 
 
-def get_content_element_from_file(file_name,  element_class):
+def get_content_element_from_file(file_name, parent_class, title, element_class, nested_element_class):
     with open(file_name, "r", encoding="utf-8") as file:
         html_content = file.read()
 
     soup = BeautifulSoup(html_content, "lxml")
-    section = soup.find(True, class_=element_class)
+    parent_section = soup.find_all(True, class_= parent_class)
 
-    if section:
-        nested_element_class = "styles_item__kyxZ3"
-        nested_elements = section.find_all(True, class_=nested_element_class)
+    for section in parent_section:
+        if parent_section :
+            # print(f"\n\n{title}")
+            # section_text = parent_section.get_text()
+            section_text = section.get_text()
+            if title in section_text:
+                print(f"\n\ntitle: {title}")
+                # print(f"parent_section: {parent_section}")
+                # print(f"with element with class {parent_class}")
 
-        if nested_elements:
-            for i, element in enumerate(nested_elements, 1):
-                element_content = element.get_text(strip=True) 
-                print(f"Element {i}: {element_content}")
+                section = soup.find(True, class_=element_class)
+                if section:
+                    # print(f"{title} with element with class {element_class}")
+                    nested_elements = section.find_all(True, class_=nested_element_class)
 
+                    if nested_elements:
+                        print(f"{title} with nested element with class {nested_element_class}")
+                        for i, element in enumerate(nested_elements, 1):
+                            element_content = element.get_text(strip=True) 
+                            print(f"Element {i}: {element_content}")
+
+        #             else:
+        #                 print(f"No nested element with class '{nested_element_class}' found.")
+        #         else:
+        #             print(f"No element with class '{element_class}' found.")
+            # else:
+            #     print(f"parent_section with class {parent_class} does not contain {title}")
         else:
-            print(f"No nested element with class '{nested_element_class}' found.")
-    else:
-        print(f"No element with class '{element_class}' found.")
+            print(f"No element with class '{parent_class}' found.")
 
 
-dataContainerClass1 = "styles_item__kyxZ3"
-dataContainerClass2 = "styles_minorPositive__2vbjs"
 
 # download_web_pages("e24aksjer", "https://e24.no/bors")
 
 m_stock = aksjer24()
+fileName = "htmlFiles/e24aksjer.html"
 
-fileName = "htmlFiles/test.html"
-elementType = "section"
-elementClass = "overview_section__K48df overview_main__sZ_nI"
+title = "Vinnere"
+parent_class = "styles_root__RKp5p"
+elementClass = "styles_table__eqU36 styles_shadowDisabled__HJU_w styles_bordered__WSE4Q"
+nested_element_class = "styles_row__Hy84e"
+get_content_element_from_file(fileName, parent_class, title, elementClass, nested_element_class)
 
-get_content_element_from_file(fileName, elementClass)
+title = "Råvarer"
+parent_class = "styles_root__e3aEm"
+elementClass ="styles_table__eqU36 styles_shadowDisabled__HJU_w styles_bordered__WSE4Q"
+nested_element_class = "styles_row__Hy84e"
+get_content_element_from_file(fileName, parent_class, title, elementClass, nested_element_class)
+
+title = "Tapere"
+parent_class = "styles_root__e3aEm"
+elementClass ="styles_table__eqU36 styles_shadowDisabled__HJU_w styles_bordered__WSE4Q"
+nested_element_class = "styles_row__Hy84e"
+get_content_element_from_file(fileName, parent_class, title, elementClass, nested_element_class)
+
+title = "Mest omsatt"
+parent_class = "styles_root__e3aEm"
+elementClass ="styles_table__eqU36 styles_shadowDisabled__HJU_w styles_bordered__WSE4Q"
+nested_element_class = "styles_row__Hy84e"
+get_content_element_from_file(fileName, parent_class, title, elementClass, nested_element_class)
+
+title = "Uvanlig høy omsetning"
+parent_class = "styles_root__e3aEm"
+elementClass ="styles_table__eqU36 styles_shadowDisabled__HJU_w styles_bordered__WSE4Q"
+nested_element_class = "styles_row__Hy84e"
+get_content_element_from_file(fileName, parent_class, title, elementClass, nested_element_class)
+
+title = "storste enhetshandel"
+parent_class = "styles_root__e3aEm"
+elementClass ="styles_table__eqU36 styles_shadowDisabled__HJU_w styles_bordered__WSE4Q"
+nested_element_class = "styles_row__Hy84e"
+get_content_element_from_file(fileName, parent_class, title, elementClass, nested_element_class)
+
+
+
