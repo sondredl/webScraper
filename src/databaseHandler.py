@@ -23,7 +23,7 @@ class DbHandler:
         self._create_last_checked_table(database_name)
         self._create_index_table(database_name)
     def _create_index_table(self, database_name):
-        tableName = "Index"
+        tableName = "Stock_index"
 
         column_0 = "id"
         primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"

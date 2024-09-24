@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import subprocess
 import os
+import sqlite3
 from bs4            import BeautifulSoup
 
 # subprocess.run(["make"])
@@ -17,7 +18,12 @@ class aksjer24:
         print(f"\n downloading {url} to {path}")
         subprocess.run(["curl", "-L", "-o", path, url])
 
-    def get_content_element_from_file(file_name, parent_class, title, element_class, nested_element_class):
+    def get_content_element_from_file(self, 
+                                      file_name, 
+                                      parent_class, 
+                                      title, 
+                                      element_class, 
+                                      nested_element_class):
         with open(file_name, "r", encoding="utf-8") as file:
             html_content = file.read()
 
@@ -44,6 +50,7 @@ class aksjer24:
                             for i, element in enumerate(nested_elements, 1):
                                 element_content = element.get_text(strip=True) 
                                 print(f"Element {i}: {element_content}")
+                                self._add_stock_to_database("temp.db", "Stock_index", element_content)
 
             #             else:
             #                 print(f"No nested element with class '{nested_element_class}' found.")
@@ -54,9 +61,28 @@ class aksjer24:
             else:
                 print(f"No element with class '{parent_class}' found.")
 
+    def _add_stock_to_database(self, database_name, table_name, element_content):
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
 
+        url = ""
+        timestamp = ""
+        timestamp_int = ""
+        market = "oslo bors"
+        title = ""
+        company_name = ""
+        value = element_content
+        percent_change = ""
 
-# download_web_pages("e24aksjer", "https://e24.no/bors")
+        cursor.execute(f"""
+            INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
+            )
+
+        conn.commit()
+        conn.close()
 
     def get_content(self):
     
@@ -101,3 +127,7 @@ class aksjer24:
 
 
 
+
+m_stock = aksjer24()
+m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
+m_stock.get_content()
