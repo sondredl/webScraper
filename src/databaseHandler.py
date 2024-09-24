@@ -21,6 +21,34 @@ class DbHandler:
         self._create_sentences_table(database_name)
         self._create_word_and_url_table(database_name)
         self._create_last_checked_table(database_name)
+        self._create_index_table(database_name)
+    def _create_index_table(self, database_name):
+        tableName = "Index"
+
+        column_0 = "id"
+        primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"
+
+        column_1 = "url"
+        column_2 = "timestamp"
+        column_3 = "timestamp_int"
+        column_4 = "market"
+        column_5 = "title"
+        column_6 = "company_name"
+        column_7 = "value"
+        column_8 = "percent_change"
+
+        integer_type = "INTEGER"
+        text_type = "TEXT"
+
+        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_column_if_not_exists(database_name, tableName, column_1, text_type)
+        self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
+        self._create_column_if_not_exists(database_name, tableName, column_3, integer_type)
+        self._create_column_if_not_exists(database_name, tableName, column_4, text_type)
+        self._create_column_if_not_exists(database_name, tableName, column_5, text_type)
+        self._create_column_if_not_exists(database_name, tableName, column_6, text_type)
+        self._create_column_if_not_exists(database_name, tableName, column_7, integer_type)
+        self._create_column_if_not_exists(database_name, tableName, column_8, integer_type)
     def _create_sentences_table(self, database_name):
         tableName = "Sentences"
 
