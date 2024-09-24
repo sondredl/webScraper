@@ -189,8 +189,8 @@ class aksjer24:
 
 
 
-m_stock = aksjer24()
+# m_stock = aksjer24()
 # m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
 # m_stock.get_content()
-m_stock.update_company_name("temp.db")
-m_stock.remove_company_name_from_value("temp.db")
+# m_stock.update_company_name("temp.db")
+# m_stock.remove_company_name_from_value("temp.db")
