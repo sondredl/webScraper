@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+
+import time
 import subprocess
 import os
 import sqlite3
 from bs4            import BeautifulSoup
+from datetime       import datetime
 
 # subprocess.run(["make"])
 
@@ -66,8 +69,8 @@ class aksjer24:
         cursor = conn.cursor()
 
         url = ""
-        timestamp = ""
-        timestamp_int = ""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_int = int(time.time())
         market = "oslo bors"
         title = ""
         company_name = ""
@@ -81,6 +84,64 @@ class aksjer24:
             ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
             )
 
+        conn.commit()
+        conn.close()
+
+    def update_company_name(self, database_path):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+
+        # Select all rows from the Stock_index table
+        cursor.execute("SELECT rowid, value FROM Stock_index")
+        rows = cursor.fetchall()
+
+        # Iterate over the rows and extract the text before the comma
+        for row in rows:
+            rowid = row[0]
+            value = row[1]
+
+            # Extract the text before the comma
+            if ',' in value:
+                company_name = value.split(',', 1)[0].strip()
+
+                # Update the company_name column for this row
+                cursor.execute("""
+                    UPDATE Stock_index
+                    SET company_name = ?
+                    WHERE rowid = ?
+                    """, (company_name, rowid))
+
+        # Commit the transaction and close the connection
+        conn.commit()
+        conn.close()
+
+    def remove_company_name_from_value(self, database_path):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+
+        # Select all rows from the Stock_index table
+        cursor.execute("SELECT rowid, value FROM Stock_index")
+        rows = cursor.fetchall()
+
+        # Iterate over the rows and remove the text before the comma
+        for row in rows:
+            rowid = row[0]
+            value = row[1]
+
+            # If there's a comma, remove the text before the comma (including the comma itself)
+            if ',' in value:
+                remaining_value = value.split(',', 1)[1].strip()
+
+                # Update the value column for this row with the remaining value
+                cursor.execute("""
+                    UPDATE Stock_index
+                    SET value = ?
+                    WHERE rowid = ?
+                """, (remaining_value, rowid))
+
+        # Commit the transaction and close the connection
         conn.commit()
         conn.close()
 
@@ -129,5 +190,7 @@ class aksjer24:
 
 
 m_stock = aksjer24()
-m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
-m_stock.get_content()
+# m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
+# m_stock.get_content()
+m_stock.update_company_name("temp.db")
+m_stock.remove_company_name_from_value("temp.db")
