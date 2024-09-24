@@ -5,9 +5,9 @@ import sqlite3
 import textwrap
 import time
 import requests
-from datetime       import datetime
-from bs4            import BeautifulSoup
-from src.jsonParser import JsonParser
+from datetime               import datetime
+from bs4                    import BeautifulSoup
+from src.jsonParser         import JsonParser
 from src.databaseHandler    import DbHandler
 from src.dbCleaner          import databaseCleaner
 
