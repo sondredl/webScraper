@@ -47,7 +47,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, tableName, column_4, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_5, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_6, text_type)
-        self._create_column_if_not_exists(database_name, tableName, column_7, integer_type)
+        self._create_column_if_not_exists(database_name, tableName, column_7, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_8, integer_type)
     def _create_sentences_table(self, database_name):
         tableName = "Sentences"
@@ -381,3 +381,5 @@ class DbHandler:
         cursor.execute(f"PRAGMA table_info({table_name})")
         columns = cursor.fetchall()
         return any(column[1] == column_name for column in columns)
+
+DbHandler()

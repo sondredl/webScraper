@@ -6,6 +6,7 @@ import os
 import sqlite3
 from bs4            import BeautifulSoup
 from datetime       import datetime
+import re
 
 # subprocess.run(["make"])
 
@@ -52,7 +53,7 @@ class aksjer24:
                             print(f"{title} with nested element with class {nested_element_class}")
                             for i, element in enumerate(nested_elements, 1):
                                 element_content = element.get_text(strip=True) 
-                                print(f"Element {i}: {element_content}")
+                                # print(f"Element {i}: {element_content}")
                                 self._add_stock_to_database("temp.db", "Stock_index", element_content)
 
             #             else:
@@ -73,8 +74,10 @@ class aksjer24:
         timestamp_int = int(time.time())
         market = "oslo bors"
         title = ""
-        company_name = ""
-        value = element_content
+
+        company_name ,value = self.extract_company_and_value(element_content)
+        print(f"{company_name} {value}")
+
         percent_change = ""
 
         cursor.execute(f"""
@@ -87,8 +90,22 @@ class aksjer24:
         conn.commit()
         conn.close()
 
+    def extract_company_and_value(self, element_content):
+        match = re.search(r'(\d+(\.\d+)?)', element_content)
+        
+        if match:
+            company_name = element_content[:match.start()].strip()
+            remaining_content = element_content[match.start():].strip()
+            decimal_matches = re.findall(r'\d+,\d+', remaining_content)
+        
+            # Get the first valid decimal number
+            value = decimal_matches[0] if decimal_matches else None
+
+            return company_name, value
+        else:
+            return element_content.strip(), None
+
     def update_company_name(self, database_path):
-        # Connect to the SQLite database
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
 
@@ -101,18 +118,15 @@ class aksjer24:
             rowid = row[0]
             value = row[1]
 
-            # Extract the text before the comma
             if ',' in value:
                 company_name = value.split(',', 1)[0].strip()
 
-                # Update the company_name column for this row
                 cursor.execute("""
                     UPDATE Stock_index
                     SET company_name = ?
                     WHERE rowid = ?
                     """, (company_name, rowid))
 
-        # Commit the transaction and close the connection
         conn.commit()
         conn.close()
 
@@ -147,7 +161,6 @@ class aksjer24:
 
     def get_content(self):
     
-        # m_stock = aksjer24()
         fileName = "htmlFiles/e24aksjer.html"
 
         title = "Vinnere"
