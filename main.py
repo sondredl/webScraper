@@ -26,10 +26,8 @@ def main():
 
         m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
         m_stock.get_content()
-        data_Extractor.cleanDuplicates("temp.db")
-        data_Extractor.cleanDuplicates("temp.db")
-
-        # m_stock.get_content_element_from_file("htmlFiles/e24aksjer.html", "styles_root__RKp5p", "Vinnere", elementClass, nested_element_class)
+        data_Extractor.cleanDuplicateRows("temp.db", "Stock_index")
+        data_Extractor.delete_rows_with_null_value("temp.db", "Stock_index", "value")
 
         sleep_time = 7200 # seconds
         time.sleep(sleep_time)

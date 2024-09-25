@@ -7,6 +7,7 @@ import sqlite3
 from bs4            import BeautifulSoup
 from datetime       import datetime
 import re
+# import dataExtractor
 
 # subprocess.run(["make"])
 
@@ -95,8 +96,11 @@ class aksjer24:
         self.get_content_element_from_file(fileName, parent_class, elementClass, nested_element_class)
 
 
-m_stock = aksjer24()
+# m_stock = aksjer24()
 # m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
-m_stock.get_content()
+# m_stock.get_content()
 # m_stock.update_company_name("temp.db")
 # m_stock.remove_company_name_from_value("temp.db")
+
+# m_dataExtractor = dataExtractor()
+# m_dataExtractor.cleanDuplicateRows("temp.db", "Stock_index")
