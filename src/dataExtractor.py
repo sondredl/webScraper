@@ -201,6 +201,51 @@ class dataExtractor:
         print(f"Markdown overview saved to {output_file}")
         self._format_markdown_file(output_file)
 
+    def cleanDuplicateRows(self, database_name, table_name):
+        column_to_ignore = "timestamp_int"
+
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
+
+        # Get the list of column names for the specified table, excluding the column_to_ignore
+        cursor.execute(f"PRAGMA table_info({table_name});")
+        columns = [info[1] for info in cursor.fetchall() if info[1] != column_to_ignore]
+
+        # Create the GROUP BY clause with all column names except the ignored column
+        group_by_clause = ', '.join(columns)
+
+        cursor.execute(f"""
+            DELETE FROM {table_name}
+            WHERE ROWID NOT IN (
+                SELECT MIN(ROWID)
+                FROM {table_name}
+                GROUP BY {group_by_clause}
+            );
+        """)
+
+        conn.commit()
+        conn.close()
+
+
+    def delete_rows_with_null_value(self, database_name, table_name, column_name):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
+
+        # SQL query to delete rows where the specified column is NULL
+        cursor.execute(f"""
+            DELETE FROM {table_name}
+            WHERE {column_name} IS NULL;
+        """)
+
+        # Commit the changes and close the connection
+        conn.commit()
+        conn.close()
+
+
+
+
+
     def cleanDuplicates(self, database_name):
         # self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
         self.m_dbHandler.clean_duplicates_in_column(database_name, "WordAndUrl", "href")
