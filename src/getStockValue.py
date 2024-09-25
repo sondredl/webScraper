@@ -106,7 +106,6 @@ class aksjer24:
             return element_content.strip(), None
 
     def update_company_name(self, database_path):
-        # Connect to the SQLite database
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
 
@@ -119,18 +118,15 @@ class aksjer24:
             rowid = row[0]
             value = row[1]
 
-            # Extract the text before the comma
             if ',' in value:
                 company_name = value.split(',', 1)[0].strip()
 
-                # Update the company_name column for this row
                 cursor.execute("""
                     UPDATE Stock_index
                     SET company_name = ?
                     WHERE rowid = ?
                     """, (company_name, rowid))
 
-        # Commit the transaction and close the connection
         conn.commit()
         conn.close()
 
@@ -165,7 +161,6 @@ class aksjer24:
 
     def get_content(self):
     
-        # m_stock = aksjer24()
         fileName = "htmlFiles/e24aksjer.html"
 
         title = "Vinnere"
@@ -207,8 +202,8 @@ class aksjer24:
 
 
 
-m_stock = aksjer24()
-m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
-m_stock.get_content()
+# m_stock = aksjer24()
+# m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
+# m_stock.get_content()
 # m_stock.update_company_name("temp.db")
 # m_stock.remove_company_name_from_value("temp.db")
