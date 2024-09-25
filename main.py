@@ -26,7 +26,7 @@ def main():
 
         m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
         m_stock.get_content()
-        m_stock.update_company_name("temp.db")
+        # m_stock.update_company_name("temp.db")
         data_Extractor.cleanDuplicates("temp.db")
 
         # m_stock.get_content_element_from_file("htmlFiles/e24aksjer.html", "styles_root__RKp5p", "Vinnere", elementClass, nested_element_class)
