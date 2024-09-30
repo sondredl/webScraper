@@ -52,8 +52,10 @@ class vectorizeText:
             # [['med', 'fisk', 'den']]
             w2v.build_vocab(sentences)
             w2v.train(sentences, total_examples=w2v.corpus_count, epochs=10)
-            print("words in vocabulary: ", w2v.wv.index_to_key[:10])
+            # print("words in vocabulary: ", w2v.wv.index_to_key[:100])
             # words = list(w2v.wv.vocab)['phil', 'advice', 'talk', 'your']
+            for word in w2v.wv.index_to_key:
+                print(f"word: {word}\nVector: \n{w2v.wv[word]}\n")
 
             # print(sentences[20:25])
             print(title)
