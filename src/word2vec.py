@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sqlite3
-from gensim.models import word2vec
+from gensim.models import Word2Vec
 from bs4                    import BeautifulSoup
 
 class vectorizeText:
@@ -43,10 +43,23 @@ class vectorizeText:
         row = cursor.fetchone()
         if row:
             title, subtitle, text = row
+            # sentences = [line.split() for line in text]
+            sentences = [sentence.strip().split() for sentence in text.split('.') if sentence.strip()]
+
+
+            # w2v = Word2Vec(sentences, vector_size=100, window=5, workers=4, min_count=5)
+            w2v = Word2Vec(vector_size=100, window=5, workers=4, min_count=5)
+            # [['med', 'fisk', 'den']]
+            w2v.build_vocab(sentences)
+            w2v.train(sentences, total_examples=w2v.corpus_count, epochs=10)
+            print("words in vocabulary: ", w2v.wv.index_to_key[:10])
+            # words = list(w2v.wv.vocab)['phil', 'advice', 'talk', 'your']
+
+            # print(sentences[20:25])
             print(title)
 
         connection.commit()
         connection.close()
 
-word2vec = vectorizeText()
-word2vec.get_sentences_in_article("temp.db", "Articles")
+wordToVector = vectorizeText()
+wordToVector.get_sentences_in_article("temp.db", "Articles")
