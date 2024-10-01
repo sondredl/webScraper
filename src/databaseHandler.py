@@ -22,6 +22,44 @@ class DbHandler:
         self._create_word_and_url_table(database_name)
         self._create_last_checked_table(database_name)
         self._create_index_table(database_name)
+        self._create_sentences_in_article_table(database_name)
+        self._create_word_in_sentences_in_article_table(database_name)
+    def _create_word_in_sentences_in_article_table(self, database_name):
+        tableName = "Word_in_sentences"
+
+        column_0 = "id"
+        primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"
+
+        column_1 = "article_id"
+        column_2 = "sentence_id"
+        column_3 = "word"
+        column_4 = "vector"
+
+        integer_type = "INTEGER"
+        text_type = "TEXT"
+
+        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_column_if_not_exists(database_name, tableName, column_1, integer_type)
+        self._create_column_if_not_exists(database_name, tableName, column_2, integer_type)
+        self._create_column_if_not_exists(database_name, tableName, column_3, text_type)
+        self._create_column_if_not_exists(database_name, tableName, column_4, text_type)
+    def _create_sentences_in_article_table(self, database_name):
+        tableName = "Sentences_in_article"
+
+        column_0 = "id"
+        primary_key = "INTEGER PRIMARY KEY AUTOINCREMENT"
+
+        column_1 = "article_id"
+        column_2 = "sentence"
+        # column_3 = f"FOREIGN KEY ({column_1} REFERENCES Articles({column_0}))"
+
+        integer_type = "INTEGER"
+        text_type = "TEXT"
+
+        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_column_if_not_exists(database_name, tableName, column_1, integer_type)
+        self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
+        # self._create_column_if_not_exists(database_name, tableName, column_3, integer_type)
     def _create_index_table(self, database_name):
         tableName = "Stock_index"
 
