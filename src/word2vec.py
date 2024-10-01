@@ -64,7 +64,7 @@ class vectorizeText:
         connection.commit()
         connection.close()
 
-    def get_sentences_from_articles(self, database_name, table_name, column_name):
+    def get_sentences_from_articles(self, database_name, table_name):
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
@@ -72,7 +72,61 @@ class vectorizeText:
         rows = cursor.fetchall()
         conn.close()
         for row in rows:
+            self._extract_sentences_from_article(database_name, table_name, row, row[0])
+            # title, subtitle, text = row
+            # sentences = [line.split() for line in text]
+            # sentences = [sentence.strip().split() for sentence in text.split('.') if sentence.strip()]
+            # all_words = [word for sentence in sentences for word in sentence]
+
+
+            # # w2v = Word2Vec(sentences, vector_size=100, window=5, workers=4, min_count=5)
+            # w2v = Word2Vec(vector_size=100, window=5, workers=4, min_count=1)
+            # w2v.build_vocab([all_words])
+            # # w2v.build_vocab(sentences)
+            # w2v.train(sentences, total_examples=w2v.corpus_count, epochs=10)
+            # for sentence in sentences:
+            #     print(f"\n\nsentence {sentence}")
+
+    def _extract_sentences_from_article(self, database_name, table_name, row_content, index):
+        connection = sqlite3.connect(database_name)
+        cursor = connection.cursor()
+        cursor = connection.cursor()
+
+        cursor.execute(f"""
+            SELECT  title, subtitle, content
+            FROM {table_name}
+            WHERE id = ?
+            """,
+            (index, ) )
+        row = cursor.fetchone()
+        if row:
+            # title, subtitle, text = row
+            # sentences = [line.split() for line in text]
+            article_id = row_content[0]
+            text = row_content[5]
+            sentences = text
+            # sentences : str = [sentence.strip().split() for sentence in text.split('.') if sentence.strip()]
+            sentences = [sentence.strip() for sentence in text.split('.') if sentence.strip()]
+
+            # all_words = [word for sentence in sentences for word in sentence]
+            # connection = sqlite3.connect(database_name)
+            # cursor = connection.cursor()
+            # cursor = connection.cursor()
+            # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # timestamp_int = int(time.time())
+            for sentence in sentences:
+                cursor.execute(f"""
+                    INSERT INTO Sentences_in_article(article_id, sentence)
+                    VALUES (?, ?) """,
+                                        (article_id, sentence),
+                )
+        connection.commit()
+        connection.close()
+        # self._insert_article(database_name , table_name, table_row_content,  title, subtitle, text)
+        # print(f"Article {index} '{title}' inserted into the database.")
+
 
 
 wordToVector = vectorizeText()
-wordToVector.get_sentences_in_article("temp.db", "Articles")
+# wordToVector.get_sentences_in_article("temp.db", "Articles")
+wordToVector.get_sentences_from_articles("temp.db", "Articles")
