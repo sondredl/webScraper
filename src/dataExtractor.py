@@ -252,7 +252,7 @@ class dataExtractor:
         self.m_dbHandler.clean_duplicates_in_column(database_name, "Sentences", "href")
         # self.m_dbHandler.cleanDuplicates(database_name, "Articles",    "title", "timestamp")
         self.m_dbHandler.clean_duplicates_in_column(database_name, "raw_articles", "url")
-        # self.m_dbHandler.clean_duplicates_in_column(database_name, "articles", "href")
+        self.m_dbHandler.clean_duplicates_in_column(database_name, "articles", "href")
         self.m_dbCleaner.reorganize_ids(database_name, "WordAndUrl")
         self.m_dbHandler.clean_last_update(database_name, "WordAndUrl")
 
