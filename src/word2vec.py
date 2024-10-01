@@ -139,15 +139,16 @@ class vectorizeText:
         row = cursor.fetchone()
         if row:
             sentence_id = row_content[0]
+            article_id = row_content[1]
             sentence = row_content[2]
 
             words = re.findall(r'\b\w+\b', sentence)
 
             for word in words:
                 cursor.execute(f"""
-                    INSERT INTO Word_in_sentences(sentence_id, word)
-                    VALUES (?, ?) """,
-                                        (sentence_id, word),
+                    INSERT INTO Word_in_sentences(sentence_id, article_id, word)
+                    VALUES (?, ?, ?) """,
+                                        (sentence_id, article_id, word),
                 )
         connection.commit()
         connection.close()
