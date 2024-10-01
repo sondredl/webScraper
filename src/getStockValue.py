@@ -42,7 +42,6 @@ class aksjer24:
                     for i, element in enumerate(nested_elements, 1):
                         element_content = element.get_text(strip=True) 
                         self._add_stock_to_database("temp.db", "Stock_index", element_content)
-
         else:
             print(f"No element with class '{parent_class}' found.")
 
