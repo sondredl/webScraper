@@ -1,11 +1,13 @@
 import time
 from src.dataExtractor      import dataExtractor
 from src.dbCleaner          import databaseCleaner
+from src.databaseHandler import DbHandler
 from src.getStockValue import aksjer24
 
 def main():
     while True:
 
+        database_handler = DbHandler()
         data_Extractor = dataExtractor()
         data_Cleaner = databaseCleaner()
         m_stock = aksjer24()
@@ -18,6 +20,9 @@ def main():
         data_Extractor.cleanDuplicates("temp.db")
         data_Extractor.download_all_article_pages("temp.db") # downloads articles from word_and_url to file
         data_Extractor.loop_all_articles("temp.db", "raw_articles")
+        database_handler.clean_duplicates_in_column("temp.db", "Articles", "url")
+        database_handler.clean_duplicates_in_column("temp.db", "Articles", "title")
+
         data_Extractor.create_markdown_overview("temp.db", "markdown")
         data_Extractor.m_dbCleaner.delete_folder_contents("articles")
         data_Extractor.m_dbCleaner.delete_folder_contents("htmlFiles")

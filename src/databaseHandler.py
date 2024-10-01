@@ -278,8 +278,8 @@ class DbHandler:
             # This SQL finds duplicate rows based on the column_name, keeping only the row with the lowest rowid
             cursor.execute(f"""
                 DELETE FROM {table_name}
-                WHERE rowid NOT IN (
-                    SELECT MIN(rowid)
+                WHERE timestamp_int NOT IN (
+                    SELECT MIN(timestamp_int)
                     FROM {table_name}
                     GROUP BY {column_name}
                 )
