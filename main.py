@@ -33,6 +33,7 @@ def main():
         m_stock.get_content()
         data_Extractor.cleanDuplicateRows("temp.db", "Stock_index")
         data_Extractor.delete_rows_with_null_value("temp.db", "Stock_index", "value")
+        print(f"time: {time.time()}")
 
         sleep_time = 7200 # seconds
         time.sleep(sleep_time)
