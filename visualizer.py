@@ -50,6 +50,27 @@ def plot_word_occurrences(word_count):
     # plt.show()
 
 
+def print_unique_company_names(db_name, table_name, column_name):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # Query to get unique company names
+    cursor.execute(f"""SELECT DISTINCT {column_name} 
+                   FROM {table_name}""")  # Replace 'your_table_name' with the actual table name
+
+    # Fetch all unique values
+    unique_companies = cursor.fetchall()
+
+    # Print each unique company name
+    for company in unique_companies:
+        print(company[0])
+
+    # Close the connection
+    conn.close()
+
+# Usage
+
 # Main function
 def main():
     db_path = 'temp.db'  # Change this to your actual database path
@@ -61,6 +82,7 @@ def main():
     
     # Plot the results
     plot_word_occurrences(word_count)
+    print_unique_company_names('temp.db', 'Stock_index', 'company_name')
 
 if __name__ == "__main__":
     main()
