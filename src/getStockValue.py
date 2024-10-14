@@ -94,6 +94,15 @@ class aksjer24:
         nested_element_class = "styles_row__Hy84e"
         self.get_content_element_from_file(fileName, parent_class, elementClass, nested_element_class)
 
+    def get_content_2(self):
+    
+        fileName = "htmlFiles/e24aksjer.html"
+
+        parent_class = "styles_table__eqU36"
+        elementClass = "styles_row__Hy84e"
+        nested_element_class = "styles_cell__E72Vn"
+        self.get_content_element_from_file(fileName, parent_class, elementClass, nested_element_class)
+
 
 # m_stock = aksjer24()
 # m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
