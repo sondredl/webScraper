@@ -103,6 +103,69 @@ class aksjer24:
         nested_element_class = "styles_cell__E72Vn"
         self.get_content_element_from_file(fileName, parent_class, elementClass, nested_element_class)
 
+    def get_content_element_from_file_2(self, 
+                                      file_name, 
+                                      parent_class, 
+                                      element_class, 
+                                      nested_element_class):
+        with open(file_name, "r", encoding="utf-8") as file:
+            html_content = file.read()
+
+        soup = BeautifulSoup(html_content, "lxml")
+        parent_section = soup.find_all(True, class_= parent_class)
+
+        if parent_section:
+            element_section = soup.find_all(True, class_= element_class)
+            if element_section:
+            # for section in element_section:
+            #     nested_elements = section.find_all(True, class_=nested_element_class)
+            #     if nested_elements:
+                for i, element in enumerate(element_section, 1):
+                    element_content = element.get_text(strip=True) 
+                    self._add_stock_to_database_2("temp.db", "Stock_index", element_content)
+        else:
+            print(f"No element with class '{parent_class}' found.")
+
+    def _add_stock_to_database_2(self, database_name, table_name, element_content):
+        conn = sqlite3.connect(database_name)
+        cursor = conn.cursor()
+
+        url = ""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_int = int(time.time())
+        market = "oslo bors"
+        title = ""
+
+        company_name ,value = self.extract_company_and_value_2(element_content)
+        print(f"{company_name} {value}")
+
+        percent_change = ""
+
+        cursor.execute(f"""
+            INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
+            )
+
+        conn.commit()
+        conn.close()
+
+    def extract_company_and_value_2(self, element_content):
+        match = re.search(r'(\d+(\.\d+)?)', element_content)
+        
+        if match:
+            company_name = element_content[:match.start()].strip()
+            remaining_content = element_content[match.start():].strip()
+            decimal_matches = re.findall(r'\d+,\d+', remaining_content)
+        
+            # Get the first valid decimal number
+            value = decimal_matches[0] if decimal_matches else None
+
+            return company_name, value
+        else:
+            return element_content.strip(), None
+
 
 # m_stock = aksjer24()
 # m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")

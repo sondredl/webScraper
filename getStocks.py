@@ -30,8 +30,8 @@ def main():
         # data_Cleaner.delete_all_content_in_table("temp.db", "raw_articles")
 
         # m_stock.download_web_pages("e24aksjer", "https://e24.no/bors")
+        # m_stock.get_content()
         m_stock.download_web_pages("e24aksjer", "https://e24.no/bors/aksjer")
-        m_stock.get_content()
         m_stock.get_content_2()
         data_Extractor.cleanDuplicateRows("temp.db", "Stock_index")
         data_Extractor.delete_rows_with_null_value("temp.db", "Stock_index", "value")
