@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from src.dataExtractor      import dataExtractor
 from src.dbCleaner          import databaseCleaner
 from src.databaseHandler import DbHandler
@@ -35,6 +36,9 @@ def main():
         m_stock.get_content_2()
         data_Extractor.cleanDuplicateRows("temp.db", "Stock_index")
         data_Extractor.delete_rows_with_null_value("temp.db", "Stock_index", "value")
+
+        print()
+        print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         print(f"time: {time.time()}")
 
         sleep_time = 7200 # seconds
