@@ -101,7 +101,7 @@ class aksjer24:
         parent_class = "styles_table__eqU36"
         elementClass = "styles_row__Hy84e"
         nested_element_class = "styles_cell__E72Vn"
-        self.get_content_element_from_file(fileName, parent_class, elementClass, nested_element_class)
+        self.get_content_element_from_file_2(fileName, parent_class, elementClass, nested_element_class)
 
     def get_content_element_from_file_2(self, 
                                       file_name, 
@@ -137,7 +137,7 @@ class aksjer24:
         title = ""
 
         company_name ,value = self.extract_company_and_value_2(element_content)
-        print(f"{company_name} {value}")
+        print(f"{company_name} :: {value}")
 
         percent_change = ""
 
