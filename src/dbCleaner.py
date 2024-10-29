@@ -57,7 +57,6 @@ class databaseCleaner:
         # else:
         #     print("Column 'search_words' already exists.")
 
-
         with open("inputData/searchWords.json") as json_file:
             search_words = json.load(json_file)
         with open("inputData/companies.json") as json_file:
@@ -65,7 +64,7 @@ class databaseCleaner:
         print(f'search_words: {search_words}')
 
         # for article in articles:
-        cursor.execute("""SELECT id, timestamp, title, subtitle, content 
+        cursor.execute("""SELECT id, timestamp, title, subtitle, content
                     FROM articles
                     WHERE timestamp > ?
                     """, (last_date_time,))
@@ -101,7 +100,6 @@ class databaseCleaner:
         connection.commit()
         connection.close()
 
-
     def delete_folder_contents(self, folder_path):
         # Check if the folder exists
         if os.path.exists(folder_path):
@@ -118,4 +116,3 @@ class databaseCleaner:
                     print(f"Directory {file_path} deleted.")
         else:
             print(f"The folder {folder_path} does not exist.")
-

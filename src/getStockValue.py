@@ -4,8 +4,8 @@ import time
 import subprocess
 import os
 import sqlite3
-from bs4            import BeautifulSoup
-from datetime       import datetime
+from bs4 import BeautifulSoup
+from datetime import datetime
 import re
 # import dataExtractor
 
@@ -14,7 +14,7 @@ import re
 
 class aksjer24:
     def __init__(self):
-        self.subtitle : str
+        self.subtitle: str
 
     def download_web_pages(self, name, url):
         filename = name + ".html"
@@ -23,24 +23,24 @@ class aksjer24:
         print(f"\n downloading {url} to {path}")
         subprocess.run(["curl", "-L", "-o", path, url])
 
-    def get_content_element_from_file(self, 
-                                      file_name, 
-                                      parent_class, 
-                                      element_class, 
+    def get_content_element_from_file(self,
+                                      file_name,
+                                      parent_class,
+                                      element_class,
                                       nested_element_class):
         with open(file_name, "r", encoding="utf-8") as file:
             html_content = file.read()
 
         soup = BeautifulSoup(html_content, "lxml")
-        parent_section = soup.find_all(True, class_= parent_class)
+        parent_section = soup.find_all(True, class_=parent_class)
 
         if parent_section:
-            element_section = soup.find_all(True, class_= element_class)
+            element_section = soup.find_all(True, class_=element_class)
             for section in element_section:
                 nested_elements = section.find_all(True, class_=nested_element_class)
                 if nested_elements:
                     for i, element in enumerate(nested_elements, 1):
-                        element_content = element.get_text(strip=True) 
+                        element_content = element.get_text(strip=True)
                         self._add_stock_to_database("temp.db", "Stock_index", element_content)
         else:
             print(f"No element with class '{parent_class}' found.")
@@ -55,29 +55,29 @@ class aksjer24:
         market = "oslo bors"
         title = ""
 
-        company_name ,value = self.extract_company_and_value(element_content)
+        company_name, value = self.extract_company_and_value(element_content)
         print(f"{company_name} {value}")
 
         percent_change = ""
 
         cursor.execute(f"""
-            INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change) 
+            INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
-            )
+                       (url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
+                       )
 
         conn.commit()
         conn.close()
 
     def extract_company_and_value(self, element_content):
         match = re.search(r'(\d+(\.\d+)?)', element_content)
-        
+
         if match:
             company_name = element_content[:match.start()].strip()
             remaining_content = element_content[match.start():].strip()
             decimal_matches = re.findall(r'\d+,\d+', remaining_content)
-        
+
             # Get the first valid decimal number
             value = decimal_matches[0] if decimal_matches else None
 
@@ -86,7 +86,7 @@ class aksjer24:
             return element_content.strip(), None
 
     def get_content(self):
-    
+
         fileName = "htmlFiles/e24aksjer.html"
 
         parent_class = "styles_root__RKp5p"
@@ -95,7 +95,7 @@ class aksjer24:
         self.get_content_element_from_file(fileName, parent_class, elementClass, nested_element_class)
 
     def get_content_2(self):
-    
+
         fileName = "htmlFiles/e24aksjer.html"
 
         parent_class = "styles_table__eqU36"
@@ -103,25 +103,25 @@ class aksjer24:
         nested_element_class = "styles_cell__E72Vn"
         self.get_content_element_from_file_2(fileName, parent_class, elementClass, nested_element_class)
 
-    def get_content_element_from_file_2(self, 
-                                      file_name, 
-                                      parent_class, 
-                                      element_class, 
-                                      nested_element_class):
+    def get_content_element_from_file_2(self,
+                                        file_name,
+                                        parent_class,
+                                        element_class,
+                                        nested_element_class):
         with open(file_name, "r", encoding="utf-8") as file:
             html_content = file.read()
 
         soup = BeautifulSoup(html_content, "lxml")
-        parent_section = soup.find_all(True, class_= parent_class)
+        parent_section = soup.find_all(True, class_=parent_class)
 
         if parent_section:
-            element_section = soup.find_all(True, class_= element_class)
+            element_section = soup.find_all(True, class_=element_class)
             if element_section:
-            # for section in element_section:
-            #     nested_elements = section.find_all(True, class_=nested_element_class)
-            #     if nested_elements:
+                # for section in element_section:
+                #     nested_elements = section.find_all(True, class_=nested_element_class)
+                #     if nested_elements:
                 for i, element in enumerate(element_section, 1):
-                    element_content = element.get_text(strip=True) 
+                    element_content = element.get_text(strip=True)
                     self._add_stock_to_database_2("temp.db", "Stock_index", element_content)
         else:
             print(f"No element with class '{parent_class}' found.")
@@ -136,29 +136,29 @@ class aksjer24:
         market = "oslo bors"
         title = ""
 
-        company_name ,value = self.extract_company_and_value_2(element_content)
+        company_name, value = self.extract_company_and_value_2(element_content)
         print(f"{company_name} :: {value}")
 
         percent_change = ""
 
         cursor.execute(f"""
-            INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change) 
+            INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
-            )
+                       (url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
+                       )
 
         conn.commit()
         conn.close()
 
     def extract_company_and_value_2(self, element_content):
         match = re.search(r'(\d+(\.\d+)?)', element_content)
-        
+
         if match:
             company_name = element_content[:match.start()].strip()
             remaining_content = element_content[match.start():].strip()
             decimal_matches = re.findall(r'\d+,\d+', remaining_content)
-        
+
             # Get the first valid decimal number
             value = decimal_matches[0] if decimal_matches else None
 

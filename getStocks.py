@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
-from src.dataExtractor      import dataExtractor
-from src.dbCleaner          import databaseCleaner
+from src.dataExtractor import dataExtractor
+from src.dbCleaner import databaseCleaner
 from src.databaseHandler import DbHandler
 from src.getStockValue import aksjer24
 
@@ -41,8 +41,9 @@ def main():
         print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         print(f"time: {time.time()}")
 
-        sleep_time = 7200 # seconds
+        sleep_time = 7200  # seconds
         time.sleep(sleep_time)
+
 
 if __name__ == "__main__":
     main()

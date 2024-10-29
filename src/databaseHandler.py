@@ -9,11 +9,11 @@ class DbHandler:
 
     def __init__(self):
         self.last_time_run = datetime.min
-        self.last_time_run_int : int
+        self.last_time_run_int: int
         self.last_time_run_int = int(time.time())
 
         self.create_database_and_tables("temp.db")
-    
+
     def create_database_and_tables(self, database_name):
         self._create_database_if_not_exists(database_name)
         self._create_articles_table(database_name)
@@ -24,6 +24,7 @@ class DbHandler:
         self._create_index_table(database_name)
         self._create_sentences_in_article_table(database_name)
         self._create_word_in_sentences_in_article_table(database_name)
+
     def _create_word_in_sentences_in_article_table(self, database_name):
         tableName = "Word_in_sentences"
 
@@ -38,11 +39,12 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, integer_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, integer_type)
         self._create_column_if_not_exists(database_name, tableName, column_3, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_4, text_type)
+
     def _create_sentences_in_article_table(self, database_name):
         tableName = "Sentences_in_article"
 
@@ -56,10 +58,11 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, integer_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
         # self._create_column_if_not_exists(database_name, tableName, column_3, integer_type)
+
     def _create_index_table(self, database_name):
         tableName = "Stock_index"
 
@@ -78,7 +81,7 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_3, integer_type)
@@ -87,6 +90,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, tableName, column_6, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_7, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_8, integer_type)
+
     def _create_sentences_table(self, database_name):
         tableName = "Sentences"
 
@@ -104,7 +108,7 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_3, text_type)
@@ -112,6 +116,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, tableName, column_5, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_6, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_7, integer_type)
+
     def _create_articles_table(self, database_name):
         table_name = "Articles"
 
@@ -130,7 +135,7 @@ class DbHandler:
         text_type = "TEXT"
         text_type_not_null = "TEXT NOT NULL"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
@@ -138,6 +143,7 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, table_name, column_5, text_type_not_null)
         self._create_column_if_not_exists(database_name, table_name, column_6, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_7, text_type)
+
     def _create_raw_articles_table(self, database_name):
         table_name = "raw_articles"
 
@@ -154,12 +160,13 @@ class DbHandler:
         text_type = "TEXT"
         text_type_not_null = "TEXT NOT NULL"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
         self._create_column_if_not_exists(database_name, table_name, column_4, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_5, text_type_not_null)
+
     def _create_last_checked_table(self, database_name):
         table_name = "LastCheckedEntry"
 
@@ -174,10 +181,11 @@ class DbHandler:
         type_text = "TEXT"
         type_datetime = "DATETIME"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, type_datetime)
+
     def _create_word_and_url_table(self, database_name):
         table_name = "WordAndUrl"
 
@@ -195,7 +203,7 @@ class DbHandler:
         type_int = "INTEGER"
         type_text = "TEXT"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_2, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_3, type_text)
@@ -203,19 +211,21 @@ class DbHandler:
         self._create_column_if_not_exists(database_name, table_name, column_5, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_6, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_7, type_int)
+
     def _create_database_if_not_exists(self, database_path):
         conn = sqlite3.connect(database_path)
         print(f"Database '{database_path}' has been created or already exists.")
         conn.commit()
         conn.close()
+
     def _create_table_if_not_exists(self, database_path, table_name, column_0, primary_key):
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
 
         cursor.execute(f"""
-            SELECT name 
-            FROM sqlite_master 
-            WHERE type='table' 
+            SELECT name
+            FROM sqlite_master
+            WHERE type='table'
                 AND name='{table_name}';""")
 
         if not cursor.fetchone():
@@ -226,15 +236,16 @@ class DbHandler:
 
         conn.commit()
         conn.close()
+
     def _create_column_if_not_exists(self, database_path, table_name, column_name, column_type):
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
 
         # Ensure table exists
         cursor.execute(f"""
-            SELECT name 
-            FROM sqlite_master 
-            WHERE type='table' 
+            SELECT name
+            FROM sqlite_master
+            WHERE type='table'
                 AND name='{table_name}'""")
         if cursor.fetchone() is None:
             print(f"Table '{table_name}' does not exist.")
@@ -252,7 +263,7 @@ class DbHandler:
             # Column does not exist, so add it
             try:
                 cursor.execute(f"""
-                    ALTER TABLE {table_name} 
+                    ALTER TABLE {table_name}
                     ADD COLUMN {column_name} {column_type}""")
                 print(f"Column '{column_name}' added to table '{table_name}'.")
             except sqlite3.OperationalError as e:
@@ -266,6 +277,7 @@ class DbHandler:
     def set_last_time_run(self):
         newest_run_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.last_time_run = self.get_time_type(newest_run_time)
+
     def set_last_time_run_int(self):
         self.last_time_run_int = int(time.time())
 
@@ -275,7 +287,7 @@ class DbHandler:
 
         try:
             cursor.execute(f"""
-                SELECT MAX(id) 
+                SELECT MAX(id)
                 FROM {table_name}""")
             result = cursor.fetchone()
 
@@ -287,12 +299,16 @@ class DbHandler:
 
         finally:
             connection.close()
+
     def get_last_time_run(self):
         return self.last_time_run
+
     def get_last_time_run_int(self):
         return self.last_time_run_int
+
     def get_time_type(self, time_str):
         return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+
     def get_current_time(self):
         return datetime.strptime('%Y-%m-%d %H:%M:%S')
 
@@ -343,6 +359,7 @@ class DbHandler:
             print(f"The highest id in the WordAndUrl table is: {last_entry_id_checked}")
         else:
             print("Failed to retrieve the highest id.")
+
     def _remove_duplicates_on_date(self, database_path, table_name, column_name, date_column):
         last_entry_id = self.get_highest_id(database_path)
         connection = sqlite3.connect(database_path)
@@ -350,10 +367,10 @@ class DbHandler:
 
         try:
             cursor.execute(
-                f"""SELECT {column_name}, date({date_column}), 
-                COUNT(*) FROM {table_name} 
-                WHERE id > ? 
-                GROUP BY {column_name}, date({date_column}) 
+                f"""SELECT {column_name}, date({date_column}),
+                COUNT(*) FROM {table_name}
+                WHERE id > ?
+                GROUP BY {column_name}, date({date_column})
                 HAVING COUNT(*) > 1""",
                 (last_entry_id,),
             )
@@ -365,59 +382,62 @@ class DbHandler:
                     f"Removing duplicates for {column_name}: {href_value} on {date_value}, {count} rows removed."
                 )
 
-            cursor.execute( f"""
-                CREATE TABLE temp_table 
-                AS SELECT * FROM {table_name} 
-                WHERE id <= ? 
+            cursor.execute(f"""
+                CREATE TABLE temp_table
+                AS SELECT * FROM {table_name}
+                WHERE id <= ?
                 GROUP BY {column_name}, date({date_column})""",
-                (last_entry_id,),
-            )
+                           (last_entry_id,),
+                           )
             cursor.execute(f"DROP TABLE {table_name}")
             cursor.execute(f"""
-                           ALTER TABLE temp_table 
+                           ALTER TABLE temp_table
                            RENAME TO {table_name}""")
             connection.commit()
 
-            print( f"""Duplicates removed successfully from 
-                {column_name} column in 
-                {table_name} table after id 
+            print(f"""Duplicates removed successfully from
+                {column_name} column in
+                {table_name} table after id
                 {last_entry_id}."""
-            )
+                  )
         except Exception as e:
             print(f"Error: {e}")
             connection.rollback()
         finally:
             connection.close()
+
     def _insert_initial_record(self, connection, table_name):
         table_name = "LastCheckedEntry"
         cursor = connection.cursor()
-        cursor.execute( f"""
+        cursor.execute(f"""
             INSERT INTO {table_name} (
                 table_name, last_entry_id, last_checked_timestamp
             )
             VALUES (?, 0, ?) """,
-            (table_name, datetime.now()),
-        )
+                       (table_name, datetime.now()),
+                       )
         connection.commit()
+
     def _update_last_checked_record(self, connection, table_name, last_entry_id):
         cursor = connection.cursor()
-        cursor.execute( """
+        cursor.execute("""
             UPDATE LastCheckedEntry
-            SET last_entry_id = ?, 
+            SET last_entry_id = ?,
             last_checked_timestamp = ?
             WHERE id = (
-                SELECT id FROM LastCheckedEntry 
-                    WHERE table_name = ? 
+                SELECT id FROM LastCheckedEntry
+                    WHERE table_name = ?
                 ORDER BY last_checked_timestamp DESC LIMIT 1
             )
             """,
-            (last_entry_id, datetime.now(), table_name),
-        )
+                       (last_entry_id, datetime.now(), table_name),
+                       )
         connection.commit()
 
     def doesColumnExist(self, cursor, table_name, column_name):
         cursor.execute(f"PRAGMA table_info({table_name})")
         columns = cursor.fetchall()
         return any(column[1] == column_name for column in columns)
+
 
 DbHandler()

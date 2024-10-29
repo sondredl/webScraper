@@ -11,4 +11,5 @@ def download_web_pages(name, url):
     print(f"\n downloading {url} to {path}")
     subprocess.run(["curl", "-L", "-o", path, url])
 
+
 download_web_pages("e24aksjer", "https://e24.no/bors")
