@@ -20,12 +20,13 @@ def count_word_instances(text, words):
     text = text.lower()
     # Initialize a counter
     word_count = Counter()
-    
+
     # Count occurrences of each word in the text
     for word in words:
         word_count[word] = text.count(word.lower())
-    
+
     return word_count
+
 
 # Initialize an overall counter for all articles
 overall_word_count = Counter()

@@ -9,7 +9,7 @@ from src import download_page
 from src import htmlParser
 from src import extractArticle
 from datetime import datetime
-from src.databaseHandler  import DbHandler
+from src.databaseHandler import DbHandler
 
 
 def createArticlesTable():
@@ -61,19 +61,19 @@ def compareTimestamps(db_handler):
     timestamp = cursor.fetchall()
     word_and_url_rows = 0
     new_word_and_url_rows = 0
-    last_time_run : datetime.datetime
+    last_time_run: datetime.datetime
 
     database_path = 'temp.db'
     table_name = 'WordAndUrl'
     column_name = 'timestamp_int'
-    column_type = 'INTEGER'  
+    column_type = 'INTEGER'
     db_handler.add_column_if_not_exists(database_path, table_name, column_name, column_type)
 
     for row in timestamp:
         # Each row is a tuple, so extract the first element
         word_and_url_rows += 1
         timestamp_str = row[0]
-    
+
         # Now pass the individual timestamp string to getTimeType
         timestamp = db_handler.get_time_type(timestamp_str)
         # print(f"{timestamp} type: {type(timestamp)}")

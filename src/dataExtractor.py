@@ -5,11 +5,11 @@ import sqlite3
 import textwrap
 import time
 import requests
-from datetime               import datetime
-from bs4                    import BeautifulSoup
-from src.jsonParser         import JsonParser
-from src.databaseHandler    import DbHandler
-from src.dbCleaner          import databaseCleaner
+from datetime import datetime
+from bs4 import BeautifulSoup
+from src.jsonParser import JsonParser
+from src.databaseHandler import DbHandler
+from src.dbCleaner import databaseCleaner
 
 class dataExtractor:
     def __init__(self):
@@ -19,7 +19,7 @@ class dataExtractor:
         self.create_folder_if_none_exists("htmlFiles")
         self.create_folder_if_none_exists("markdown")
         self.create_folder_if_none_exists("articles")
-    
+
     def create_folder_if_none_exists(self, folderName):
         subprocess.run(["mkdir", "folderName"])
 
@@ -33,31 +33,30 @@ class dataExtractor:
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT href 
+            SELECT href
             FROM WordAndUrl""")
         urls = cursor.fetchall()
 
         cursor.execute("""
-            SELECT id 
+            SELECT id
             FROM WordAndUrl""")
         ids = cursor.fetchall()
 
         cursor.execute("""
-            SELECT timestamp 
+            SELECT timestamp
             FROM WordAndUrl""")
         timestamp = cursor.fetchall()
 
         for row in timestamp:
             # Each row is a tuple, so extract the first element
             timestamp_str = row[0]
-        
+
             # Now pass the individual timestamp string to getTimeType
             timestamp = self.m_dbHandler.get_time_type(timestamp_str)
         conn.close()
 
         for url in urls:
             self._downloadArticlePage(database_name, url[0])
-
 
     def getWordAndUrl(self, database_name):
         conn = sqlite3.connect(database_name)
@@ -71,8 +70,8 @@ class dataExtractor:
                 SELECT filename, tag_name, sentence, href, timestamp
                 FROM Sentences
                 WHERE sentence LIKE ?""",
-                ("%" + search_word + "%",),
-            )
+                            ("%" + search_word + "%",),
+                            )
 
             matching_rows = cursor.fetchall()
             # print(matching_rows)
@@ -83,8 +82,8 @@ class dataExtractor:
                 cursor.execute( """
                     INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
                     VALUES (?, ?, ?, ?, ?)""",
-                    (pagename, tag_name, search_word, href,  timestamp),
-                )
+                                (pagename, tag_name, search_word, href, timestamp),
+                                )
                 # print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
 
         conn.commit()
@@ -102,8 +101,8 @@ class dataExtractor:
                 SELECT filename, tag_name, sentence, href, timestamp
                 FROM Sentences
                 WHERE sentence LIKE ?""",
-                ("%" + search_word + "%",),
-            )
+                            ("%" + search_word + "%",),
+                            )
 
             matching_rows = cursor.fetchall()
 
@@ -112,8 +111,8 @@ class dataExtractor:
                 cursor.execute("""
                     INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
                     VALUES (?, ?, ?, ?, ?)""",
-                    (pagename, tag_name, search_word, href, timestamp),
-                )
+                               (pagename, tag_name, search_word, href, timestamp),
+                               )
 
         conn.commit()
         conn.close()
@@ -131,20 +130,20 @@ class dataExtractor:
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
-        
+
         # Step 2: Fetch all results
         rows = cursor.fetchall()
         conn.close()
-        
+
         # Print or return the rows
         for row in rows:
             # print(row)
-            self._get_article_from_db(database_name, table_name, row , row[0])
+            self._get_article_from_db(database_name, table_name, row, row[0])
 
         try:
             self.m_dbCleaner.delete_all_content_in_table(database_name, table_name)
             print(f"deleted content in {table_name}")
-        except:
+        except BaseException:
             print(f"failed to delete content in {table_name}")
         finally:
             print("successfull insertion in Articles table")
@@ -160,26 +159,26 @@ class dataExtractor:
         last_time_run_int = int(time.time())
         # last_time_run = self.m_dbHandler.get_last_time_run()
         # last_time_run_int = self.m_dbHandler.get_last_time_run_int()
-        
+
         output_file = os.path.join(output_dir, f"articles_overview_{last_time_run}.md")
-        
+
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute("""
             SELECT timestamp, timestamp_int, title, subtitle, content
             FROM articles
-            WHERE timestamp_int > ? """, 
-            (last_time_run_int,))
+            WHERE timestamp_int > ? """,
+                       (last_time_run_int,))
         articles = cursor.fetchall()
         print(f"last_date_time {last_time_run_int}")
         print(f"number of articles to be used {len(articles)}")
 
         # Determine the file mode ('a' for append, 'w' for write if new file)
         file_mode = 'a' if os.path.exists(output_file) else 'w'
-        
+
         with open(output_file, file_mode) as md_file:
-            if file_mode == 'w': 
+            if file_mode == 'w':
                 md_file.write("# Articles Overview\n\n")
 
             for index, article in enumerate(articles):
@@ -190,8 +189,8 @@ class dataExtractor:
                         md_file.write(f"### {subtitle}\n")
                     else:
                         md_file.write("### No subtitle\n")
-                    
-                    md_file.write(f"{text}...\n\n") 
+
+                    md_file.write(f"{text}...\n\n")
                     md_file.write("---\n\n")
                 else:
                     print("no new articles, will not make new file")
@@ -226,7 +225,6 @@ class dataExtractor:
         conn.commit()
         conn.close()
 
-
     def delete_rows_with_null_value(self, database_name, table_name, column_name):
         # Connect to the SQLite database
         conn = sqlite3.connect(database_name)
@@ -242,10 +240,6 @@ class dataExtractor:
         conn.commit()
         conn.close()
 
-
-
-
-
     def cleanDuplicates(self, database_name):
         # self.m_dbHandler.cleanDuplicates(database_name, "WordAndUrl", "href",  "timestamp")
         self.m_dbHandler.clean_duplicates_in_column(database_name, "WordAndUrl", "href")
@@ -260,7 +254,7 @@ class dataExtractor:
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
-        folder_path = "htmlFiles/" # set to table name after downloading to database instead of file
+        folder_path = "htmlFiles/"  # set to table name after downloading to database instead of file
 
         search_words = self.m_jsonParser.searchWords()
         html_tags = self.m_jsonParser.htmlTags()
@@ -296,11 +290,11 @@ class dataExtractor:
 
                             if not (content == previousInsertion) and href_link != "":
                                 cursor.execute("""
-                                    INSERT INTO Sentences ( filename, tag_name, sentence, href, timestamp) 
+                                    INSERT INTO Sentences ( filename, tag_name, sentence, href, timestamp)
                                     VALUES (?, ?, ?, ?, ?)
                                 """,
-                                (pageName, tag_name, content, href_link,   timestamp),
-                                )
+                                               (pageName, tag_name, content, href_link, timestamp),
+                                               )
                                 previousInsertion = content
         conn.commit()
         conn.close()
@@ -320,7 +314,7 @@ class dataExtractor:
 
         formatted_lines = []
         for line in lines:
-            if line.__contains__('###') :
+            if line.__contains__('###'):
                 if len(formatted_lines) > 0 and not formatted_lines[-1].startswith('#'):
                     formatted_lines.append('\n')  # Add a blank line
 
@@ -331,7 +325,7 @@ class dataExtractor:
 
         formatted_paragraphs = []
         for paragraph in paragraphs:
-            # Handle code blocks and lists 
+            # Handle code blocks and lists
             if paragraph.startswith("```") or paragraph.startswith("- ") or paragraph.startswith("* "):
                 formatted_paragraphs.append(paragraph)
             else:
@@ -346,9 +340,9 @@ class dataExtractor:
         print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
 
     def _get_article_from_db(self,database_name, table_name, table_row_content, index):
-        raw_html = table_row_content[3] # index of column with raw html
+        raw_html = table_row_content[3]  # index of column with raw html
         url = table_row_content[5]
-        
+
         # Parse the HTML using BeautifulSoup
         soup = BeautifulSoup(raw_html, "html.parser")
 
@@ -371,8 +365,8 @@ class dataExtractor:
         cursor.execute( """
             INSERT INTO Articles(timestamp, timestamp_int, title, subtitle, content, url)
             VALUES (?, ?, ?, ?, ?, ?) """,
-                                (timestamp, timestamp_int, title, subtitle, text, url),
-        )
+                        (timestamp, timestamp_int, title, subtitle, text, url),
+                        )
         connection.commit()
         connection.close()
         # self._insert_article(database_name , table_name, table_row_content,  title, subtitle, text)
@@ -382,10 +376,9 @@ class dataExtractor:
         # connection.commit()
         # else:
         #     print(f"No article found for URL: {url}")
-        
+
         # Close the connection
         # connection.close()
-
 
     def _get_article_from_file(self, filename, connection, index):
         with open(filename, "r", encoding="utf-8") as file:
@@ -394,7 +387,7 @@ class dataExtractor:
         cursor = connection.cursor()
 
         matching_rows = cursor.fetchall()
-        
+
         soup = BeautifulSoup(html_content, "html.parser")
 
         for row in matching_rows:
@@ -402,9 +395,8 @@ class dataExtractor:
             cursor.execute("""
                 INSERT INTO WordAndUrl ( pagename, tag_name, search_word, href, timestamp)
                 VALUES (?, ?, ?, ?, ?)""",
-                (pagename, tag_name, search_word, href, timestamp),
-            )
-
+                           (pagename, tag_name, search_word, href, timestamp),
+                           )
 
         title_tag = soup.title
         subtitle_tag = soup.find(["h2", "h3", "h4", "h5", "h6", "p"])
@@ -428,8 +420,8 @@ class dataExtractor:
         cursor.execute( """
             INSERT INTO Articles(timestamp, title, subtitle, content, timestamp_int)
             VALUES (?, ?, ?, ?, ?) """,
-                                (timestamp, title, subtitle, text, timestamp_int),
-        )
+                        (timestamp, title, subtitle, text, timestamp_int),
+                        )
         connection.commit()
         connection.close()
 
@@ -470,7 +462,7 @@ class dataExtractor:
 
             # Insert the raw HTML into the 'raw_articles' table
             cursor.execute("""
-                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words, url) 
+                INSERT INTO raw_articles (timestamp, timestamp_int, raw_html, search_words, url)
                 VALUES (?, ?, ?, ?, ?)
             """, (timestamp, timestamp_int, raw_html, search_words, url))
 
