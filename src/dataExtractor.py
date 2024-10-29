@@ -66,12 +66,12 @@ class dataExtractor:
             search_words = json.load(json_file)
 
         for search_word in search_words:
-            cursor.execute( """
+            cursor.execute("""
                 SELECT filename, tag_name, sentence, href, timestamp
                 FROM Sentences
                 WHERE sentence LIKE ?""",
-                            ("%" + search_word + "%",),
-                            )
+                           ("%" + search_word + "%",),
+                           )
 
             matching_rows = cursor.fetchall()
             # print(matching_rows)
@@ -79,11 +79,11 @@ class dataExtractor:
             for row in matching_rows:
                 # pagename = row
                 pagename, tag_name, search_word, href, timestamp = row
-                cursor.execute( """
+                cursor.execute("""
                     INSERT INTO WordAndUrl (pagename, tag_name, search_word, href, timestamp)
                     VALUES (?, ?, ?, ?, ?)""",
-                                (pagename, tag_name, search_word, href, timestamp),
-                                )
+                               (pagename, tag_name, search_word, href, timestamp),
+                               )
                 # print(f"added {pagename}, {tag_name}, {search_word}, {href}, {timestamp}")
 
         conn.commit()
@@ -97,12 +97,12 @@ class dataExtractor:
             search_words = json.load(json_file)
 
         for search_word in search_words:
-            cursor.execute( """
+            cursor.execute("""
                 SELECT filename, tag_name, sentence, href, timestamp
                 FROM Sentences
                 WHERE sentence LIKE ?""",
-                            ("%" + search_word + "%",),
-                            )
+                           ("%" + search_word + "%",),
+                           )
 
             matching_rows = cursor.fetchall()
 
@@ -299,7 +299,7 @@ class dataExtractor:
         conn.commit()
         conn.close()
 
-    def _download_web_pages(self,name, url):
+    def _download_web_pages(self, name, url):
         filename = name + ".html"
         path = "htmlFiles/"
         path += filename
@@ -339,7 +339,7 @@ class dataExtractor:
 
         print(f"File '{file_path}' has been formatted with a max width of {max_width} characters.")
 
-    def _get_article_from_db(self,database_name, table_name, table_row_content, index):
+    def _get_article_from_db(self, database_name, table_name, table_row_content, index):
         raw_html = table_row_content[3]  # index of column with raw html
         url = table_row_content[5]
 
@@ -362,11 +362,11 @@ class dataExtractor:
         cursor = connection.cursor()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
-        cursor.execute( """
+        cursor.execute("""
             INSERT INTO Articles(timestamp, timestamp_int, title, subtitle, content, url)
             VALUES (?, ?, ?, ?, ?, ?) """,
-                        (timestamp, timestamp_int, title, subtitle, text, url),
-                        )
+                       (timestamp, timestamp_int, title, subtitle, text, url),
+                       )
         connection.commit()
         connection.close()
         # self._insert_article(database_name , table_name, table_row_content,  title, subtitle, text)
@@ -417,11 +417,11 @@ class dataExtractor:
         cursor = connection.cursor()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_int = int(time.time())
-        cursor.execute( """
+        cursor.execute("""
             INSERT INTO Articles(timestamp, title, subtitle, content, timestamp_int)
             VALUES (?, ?, ?, ?, ?) """,
-                        (timestamp, title, subtitle, text, timestamp_int),
-                        )
+                       (timestamp, title, subtitle, text, timestamp_int),
+                       )
         connection.commit()
         connection.close()
 

@@ -108,11 +108,11 @@ def main():
     # articlesTable_name = "Articles"
     # title_column_name = "title"
 
-    #createContentFiles()
-    #htmlParser.updateDatabase()
-    #htmlParser.updateDatabaseCompany()
-    #htmlParser.getWordAndUrl()
-    #htmlParser.getCompanyAndUrl()
+    # createContentFiles()
+    # htmlParser.updateDatabase()
+    # htmlParser.updateDatabaseCompany()
+    # htmlParser.getWordAndUrl()
+    # htmlParser.getCompanyAndUrl()
 
     # cleanDuplicates = multiprocessing.Process(
     #     target=dbCleaner.remove_duplicates_on_date(

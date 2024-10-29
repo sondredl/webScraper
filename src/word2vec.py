@@ -32,7 +32,7 @@ class vectorizeText:
             print("successfull insertion in Articles table")
             return rows  # Optionally return the rows if needed
 
-    def _get_article_from_db(self,database_name, table_name, table_row_content, index):
+    def _get_article_from_db(self, database_name, table_name, table_row_content, index):
         connection = sqlite3.connect(database_name)
         cursor = connection.cursor()
         cursor = connection.cursor()

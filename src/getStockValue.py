@@ -55,7 +55,7 @@ class aksjer24:
         market = "oslo bors"
         title = ""
 
-        company_name,value = self.extract_company_and_value(element_content)
+        company_name, value = self.extract_company_and_value(element_content)
         print(f"{company_name} {value}")
 
         percent_change = ""
@@ -64,7 +64,7 @@ class aksjer24:
             INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-                       ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
+                       (url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
                        )
 
         conn.commit()
@@ -136,7 +136,7 @@ class aksjer24:
         market = "oslo bors"
         title = ""
 
-        company_name,value = self.extract_company_and_value_2(element_content)
+        company_name, value = self.extract_company_and_value_2(element_content)
         print(f"{company_name} :: {value}")
 
         percent_change = ""
@@ -145,7 +145,7 @@ class aksjer24:
             INSERT INTO {table_name} ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-                       ( url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
+                       (url, timestamp, timestamp_int, market, title, company_name, value, percent_change),
                        )
 
         conn.commit()

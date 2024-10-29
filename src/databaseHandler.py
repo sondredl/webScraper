@@ -39,7 +39,7 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, integer_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, integer_type)
         self._create_column_if_not_exists(database_name, tableName, column_3, text_type)
@@ -58,7 +58,7 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, integer_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
         # self._create_column_if_not_exists(database_name, tableName, column_3, integer_type)
@@ -81,7 +81,7 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_3, integer_type)
@@ -108,7 +108,7 @@ class DbHandler:
         integer_type = "INTEGER"
         text_type = "TEXT"
 
-        self._create_table_if_not_exists( database_name, tableName, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, tableName, column_0, primary_key)
         self._create_column_if_not_exists(database_name, tableName, column_1, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_2, text_type)
         self._create_column_if_not_exists(database_name, tableName, column_3, text_type)
@@ -135,7 +135,7 @@ class DbHandler:
         text_type = "TEXT"
         text_type_not_null = "TEXT NOT NULL"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
@@ -160,7 +160,7 @@ class DbHandler:
         text_type = "TEXT"
         text_type_not_null = "TEXT NOT NULL"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, text_type)
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, text_type_not_null)
@@ -181,7 +181,7 @@ class DbHandler:
         type_text = "TEXT"
         type_datetime = "DATETIME"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_2, integer_type)
         self._create_column_if_not_exists(database_name, table_name, column_3, type_datetime)
@@ -203,7 +203,7 @@ class DbHandler:
         type_int = "INTEGER"
         type_text = "TEXT"
 
-        self._create_table_if_not_exists( database_name, table_name, column_0, primary_key)
+        self._create_table_if_not_exists(database_name, table_name, column_0, primary_key)
         self._create_column_if_not_exists(database_name, table_name, column_1, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_2, type_text)
         self._create_column_if_not_exists(database_name, table_name, column_3, type_text)
@@ -382,24 +382,24 @@ class DbHandler:
                     f"Removing duplicates for {column_name}: {href_value} on {date_value}, {count} rows removed."
                 )
 
-            cursor.execute( f"""
+            cursor.execute(f"""
                 CREATE TABLE temp_table
                 AS SELECT * FROM {table_name}
                 WHERE id <= ?
                 GROUP BY {column_name}, date({date_column})""",
-                            (last_entry_id,),
-                            )
+                           (last_entry_id,),
+                           )
             cursor.execute(f"DROP TABLE {table_name}")
             cursor.execute(f"""
                            ALTER TABLE temp_table
                            RENAME TO {table_name}""")
             connection.commit()
 
-            print( f"""Duplicates removed successfully from
+            print(f"""Duplicates removed successfully from
                 {column_name} column in
                 {table_name} table after id
                 {last_entry_id}."""
-                   )
+                  )
         except Exception as e:
             print(f"Error: {e}")
             connection.rollback()
@@ -409,18 +409,18 @@ class DbHandler:
     def _insert_initial_record(self, connection, table_name):
         table_name = "LastCheckedEntry"
         cursor = connection.cursor()
-        cursor.execute( f"""
+        cursor.execute(f"""
             INSERT INTO {table_name} (
                 table_name, last_entry_id, last_checked_timestamp
             )
             VALUES (?, 0, ?) """,
-                        (table_name, datetime.now()),
-                        )
+                       (table_name, datetime.now()),
+                       )
         connection.commit()
 
     def _update_last_checked_record(self, connection, table_name, last_entry_id):
         cursor = connection.cursor()
-        cursor.execute( """
+        cursor.execute("""
             UPDATE LastCheckedEntry
             SET last_entry_id = ?,
             last_checked_timestamp = ?
@@ -430,8 +430,8 @@ class DbHandler:
                 ORDER BY last_checked_timestamp DESC LIMIT 1
             )
             """,
-                        (last_entry_id, datetime.now(), table_name),
-                        )
+                       (last_entry_id, datetime.now(), table_name),
+                       )
         connection.commit()
 
     def doesColumnExist(self, cursor, table_name, column_name):
